@@ -241,6 +241,10 @@
         this.resource('reddit', {path: '/*reddit_path'});
       });
 
+      App.Router.reopen({
+        location: 'history'
+      });
+
       App.IndexRoute = Ember.Route.extend({
         redirect: function() {
           this.transitionTo('reddit', 'r/all');
