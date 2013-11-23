@@ -1,0 +1,104 @@
+<html>
+<head>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"/>
+</head>
+<body>
+<script type="text/x-handlebars">
+    <h1>Reddit Submission Stream</h1>
+    {{outlet}}
+</script>
+<script type="text/x-handlebars" data-template-name="index">
+    <ul class='submission'>
+        {{#each model itemController="postItem"}}
+        <li class='submission media '>
+            {{#if thumbnail}}
+            <div class='pull-left'>
+                <img class='media-object' {{bindAttr src=thumbnail}}/>
+            </div>
+            {{/if}}
+            <div class='media-body'>
+                <h4 class='media-heading'><a {{bindAttr href=url}} target='reddit'>{{title}}</a></h4>
+                    <div class='media'>
+                        by <span class='author'>{{author}}</span> in <span class='subreddit'>{{subreddit}}</span>
+                        at <span class='date'>{{created}}
+                    </div>
+            </div>
+        </li>
+        {{else}}
+        <li class='waiting media'>
+            <div class='media-body'>
+                <h4 class='media-heading'>
+                    Waiting for submissions...
+                </h4>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.js"></script>
+<script type="text/javascript">
+    var App = Ember.Application.create();
+
+
+    var ONE_SECOND = 1000;
+
+    App.Clock = Ember.Object.extend({
+        second: null,
+        minute: null,
+        hour: null,
+
+        init: function () {
+            this.tick();
+        },
+
+        tick: function () {
+            var now = new Date();
+
+            this.setProperties({
+                second: now.getSeconds(),
+                minute: now.getMinutes(),
+                hour: now.getHours()
+            });
+
+            var self = this;
+            setTimeout(function () {
+                self.tick();
+            }, ONE_SECOND)
+        }
+    });
+
+    App.clock = App.Clock.create();
+
+    App.Router.map(function () {
+
+    });
+
+    App.submissions = Em.A();
+
+    App.IndexRoute = Ember.Route.extend({
+        model: function () {
+            return App.submissions;
+        }
+    });
+
+    App.PostItemController = Ember.ObjectController.extend({
+        clock: App.clock,
+
+        created: function () {
+            return moment(this.get('model.created') * 1000);
+        }.property('model.created', 'clock.minute')
+    });
+
+
+    var eventSource = new EventSource("http://api-dev.redditanalytics.com/submission_stream?eventsource=true");
+    eventSource.onmessage = function (evt) {
+        var post = JSON.parse(evt.data);
+        App.submissions.insertAt(0, post);
+    };
+</script>
+</body>
+</html>
