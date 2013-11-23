@@ -97,6 +97,12 @@
     var eventSource = new EventSource("http://api-dev.redditanalytics.com/submission_stream?eventsource=true");
     eventSource.onmessage = function (evt) {
         var post = JSON.parse(evt.data);
+        if (post.thumbnail == "self" || post.thumbnail == "default") {
+            post.thumbnail = "images/no_thumbnail.gif";
+        }
+        if (post.thumbnail == "nsfw") {
+            post.thumbnail = "images/nsfw.gif"
+        }
         App.submissions.insertAt(0, post);
     };
 </script>
