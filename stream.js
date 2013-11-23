@@ -1,7 +1,3 @@
-Handlebars.registerHelper('time_ago', function (timestamp) {
-    return moment.unix(timestamp).fromNow();
-});
-
 var App = Ember.Application.create();
 
 
