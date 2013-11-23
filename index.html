@@ -1,417 +1,478 @@
 <html>
-<head>
+  <head>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pace/0.4.10/themes/pace-theme-minimal.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/pace/0.4.10/pace.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
     <style type='text/css'>
-        .ups, .downs, .score {
-            text-align: right;
-            width: 4em;
-        }
+      .ups, .downs, .score {
+        text-align: right;
+        width: 4em;
+      }
+      .ups {
+        color: green;
+      }
+      .downs {
+        color: red;
+      }
+      .submission .score {
+        font-weight: bold;
+      }
+      .ups:before {
+        content: '+';
+      }
+      .downs:before {
+        content: '-';
+      }
+      .submission-list > .submission {
+        padding: 1em;
+        margin: 0 0 0 0;
+      }
+      .submission-list > .submission:nth-child(odd) {
+        background-color: #EEEEEE;
+      }
+      article.container {
+        width: 100%;
+        padding-top: 50px;
+        padding-bottom: 25px;
+      }
 
-        .ups {
-            color: green;
-        }
+      ul.comments {
+        list-style-type: none;
+        padding-left: 1em;
+      }
 
-        .downs {
-            color: red;
-        }
+      .submission .media-heading {
+        font-size: 120%;
+      }
 
-        .score {
-            font-weight: bold;
-        }
-
-        .ups:before {
-            content: '+';
-        }
-
-        .downs:before {
-            content: '-';
-        }
-
-        .submission-list > .submission {
-            padding: 1em;
-            margin: 0 0 0 0;
-        }
-
-        .submission-list > .submission:nth-child(odd) {
-            background-color: #EEEEEE;
-        }
-
-        article.container {
-            padding-top: 50px;
-        }
-
-        ul.comments {
-            list-style-type: none;
-            padding-left: 1em;
-        }
+      .stickied .media-heading a {
+        font-weight: bold;
+        color: green;
+      }
     </style>
-</head>
-<body>
-<script type="text/x-handlebars">
-    <div class='navbar navbar-inverse navbar-fixed-top'>
+  </head>
+  <body>
+    <script type="text/x-handlebars">
+      <div class='navbar navbar-inverse navbar-fixed-top'>
         <div class='navbar-inner'>
-            <div class='container'>
-                {{#linkTo "reddit" "r/redditanalytics" class="navbar-brand"}}Reddit Analytics{{/linkTo}}
-                <div class='navbar-collapse collapse'>
-                    <ul class='nav navbar-nav'>
-                        {{#linkTo "reddit" "r/all" tagName="li"}}
-                        <a href='#'>/r/all</a>
-                        {{/linkTo}}
-                        {{#linkTo "submissions.stream" tagName="li"}}
-                        <a href='#'>/new</a>
-                        {{/linkTo}}
-                    </ul>
-                </div>
+          <div class='container'>
+            {{#linkTo "reddit" "r/redditanalytics" class="navbar-brand"}}Reddit Analytics{{/linkTo}}
+            <div class='navbar-collapse collapse'>
+              <ul class='nav navbar-nav'>
+                {{#linkTo "reddit" "r/all" tagName="li"}}
+                  <a href='#'>/r/all</a>
+                {{/linkTo}}
+                {{#linkTo "submissions.stream" tagName="li"}}
+                  <a href='#'>/new</a>
+                {{/linkTo}}
+              </ul>
             </div>
+          </div>
         </div>
-    </div>
-    <article class='container'>{{outlet}}</article>
-</script>
-<script type="text/x-handlebars" data-template-name="submissions/stream">
-    <div class="input-group">
+      </div>
+      <article class='container'>{{outlet}}</article>
+    </script>
+    <script type="text/x-handlebars" data-template-name="submissions/stream">
+      <div class="input-group">
         <span class="input-group-addon">http://stream.redditanalytics.com/?channel=submissions&amp;</span>
         {{input class="form-control" value=newArgs placeholder="Stream URL arguments" size="128"}}
         {{#linkTo "submissions.stream.custom" newArgs class='input-group-addon'}}
-        Change Stream
+          Change Stream
         {{/linkTo}}
-    </div>
-    <div class='submission-list'>
-        {{#each submissions itemController="submissionItem"}}
+      </div>
+      <div class='submission-list'>
+      {{#each submissions itemController="submissionItem"}}
         {{partial "submissionItem"}}
-        {{else}}
+      {{else}}
         <div class='waiting media'>
-            <div class='media-body'>
-                <h4 class='media-heading'>
-                    Waiting for submissions...
-                </h4>
-            </div>
+          <div class='media-body'>
+            <h4 class='media-heading'>
+              Waiting for submissions...
+            </h4>
+          </div>
         </div>
-        {{/each}}
-    </div>
-</script>
+      {{/each}}
+      </div>
+    </script>
 
-<script type="text/x-handlebars" data-template-name="submissionItem">
-    <div class='submission media'>
-        <div class='pull-left'>
+    <script type="text/x-handlebars" data-template-name="submissionItem">
+      <div {{bind-attr class='stickied :submission :media'}}>
+          <div class='pull-left votes'>
             <div class='ups'>{{ups}}</div>
             <div class='score'>{{score}}</div>
             <div class='downs'>{{downs}}</div>
-        </div>
+          </div>
         {{#if thumbnail}}
-        <div class='pull-left'>
+          <div class='pull-left'>
             <a {{bindAttr href=url}} target='reddit'>
-            <img class='media-object' {{bindAttr src=thumbnail}}/>
+              <img class='media-object' {{bindAttr src=thumbnail}}/>
             </a>
-        </div>
+          </div>
         {{/if}}
         <div class='media-body'>
-            <span class='media-heading'><a {{bindAttr href=url}} target='reddit'>{{title}}</a></span>
-            {{#if link_flair_text}}
+          <span class='media-heading'><a {{bindAttr href=url}} target='reddit'>{{title}}</a></span>
+          {{#if link_flair_text}}
             <span class='label label-primary link-flair'>{{link_flair_text}}</span>
-            {{/if}}
-            <div class='media'>
-                {{#linkTo 'reddit' permalinkPath class="permalink"}}
-                {{#if num_comments}}
+          {{/if}}
+          <div class='media'>
+            {{#linkTo 'reddit' permalinkPath class="permalink"}}
+              {{#if num_comments}}
                 {{num_comments}}
-                {{/if}}
-                comments
-                {{/linkTo}}
-                submitted
-                <span class='date'>{{created}}</span>
-                by
-                {{#linkTo 'reddit' authorPath class="author"}}
-                {{author}}
-                {{#if author_flair_text}}
-                <span class='label label-info link-flair'>{{link_flair_text}}</span>
-                {{/if}}
-                {{/linkTo}}
-                to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{subreddit}}{{/linkTo}}
-            </div>
-        </div>
-    </div>
-</script>
-
-<script type="text/x-handlebars" data-template-name="commentItem">
-    <li class='comment'>
-        <div class='meta'>
-            by {{#linkTo 'reddit' authorPath class="author"}}{{author}}{{/linkTo}}
-            in {{#linkTo 'reddit' subredditPath class="subreddit"}}{{subreddit}}{{/linkTo}}
+              {{/if}}
+              comments
+            {{/linkTo}}
+            submitted
             <span class='date'>{{created}}</span>
+            by
+            {{#linkTo 'reddit' authorPath class="author"}}
+              {{author}}
+              {{#if author_flair_text}}
+                <span class='label label-info link-flair'>{{link_flair_text}}</span>
+              {{/if}}
+            {{/linkTo}}
+            to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{subreddit}}{{/linkTo}}
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="commentItem">
+      <li class='comment'>
+        <div class='meta'>
+          by {{#linkTo 'reddit' authorPath class="author"}}{{author}}{{/linkTo}}
+          {{#if score_hidden}}
+            <span class='score-hidden'>[score hidden]</span>
+          {{else}}
+            <span class='score'>{{score}} points</span>
+          {{/if}}
+          <span class='date'>{{created}}</span>
+          {{#if id}}
+            {{#linkTo 'comments.tree' id class="glyphicon glyphicon-search"}}{{/linkTo}}
+          {{/if}}
         </div>
         <blockquote>
+          {{#if body}}
             {{body}}
+          {{else}}
+          {{/if}}
         </blockquote>
-        {{#if id}}
-        {{#linkTo 'comments.tree' id}}Search Comment Tree{{/linkTo}}
-        {{/if}}
         <ul class='comments'>
-            {{#each children itemController="commentsTree"}}
-            {{partial "commentItem"}}
-            {{/each}}
+        {{#each children itemController="commentsTree"}}
+          {{partial "commentItem"}}
+        {{/each}}
         </ul>
-    </li>
-</script>
+      </li>
+    </script>
 
-<script type="text/x-handlebars" data-template-name="comments/tree">
-    <h3>Comment Tree for: {{id}}</h3>
-    <ul class='comments'>
+    <script type="text/x-handlebars" data-template-name="comments/tree">
+      <h3>Comment Tree for: {{id}}</h3>
+      <ul class='comments'>
         {{partial "commentItem"}}
-    </ul>
-</script>
+      </ul>
+    </script>
 
-<script type="text/x-handlebars" data-template-name="reddit">
-    <div class='submission-list'>
-        {{#each posts itemController="submissionItem"}}
+    <script type="text/x-handlebars" data-template-name="reddit">
+      <div class='submission-list'>
+      {{#each posts itemController="submissionItem"}}
         {{partial "submissionItem"}}
-        {{/each}}
-    </div>
+      {{/each}}
+      </div>
 
-    <ul class='comments'>
-        {{#each comments itemController="commentsTree"}}
+      <ul class='comments'>
+      {{#each comments itemController="commentsTree"}}
         {{partial "commentItem"}}
-        {{/each}}
-    </ul>
-</script>
+      {{/each}}
+      </ul>
 
-<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.js"></script>
-<script type="text/javascript">
-var App = Ember.Application.create();
+      <div class='page-nav'>
+        {{#if hasMultiplePosts}}
+          view more:
+          {{#if prevPath}}
+            {{#linkTo 'reddit' prevPath class='label label-default'}}&laquo; prev{{/linkTo}}
+          {{/if}}
+          {{#if nextPath}}
+            {{#linkTo 'reddit' nextPath class='label label-default'}}next &raquo;{{/linkTo}}
+          {{/if}}
+          {{!--
+          or try a {{#linkTo 'reddit' 'r/random' class='label label-default'}}random subreddit{{/linkTo}}
+          --}}
+        {{/if}}
+      </div>
+    </script>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.js"></script>
+    <script type="text/javascript">
+      var App = Ember.Application.create();
 
-var ONE_SECOND = 1000
+      App.Clock = Ember.Object.extend({
+        second: null,
+        minute: null,
+        hour:   null,
 
-App.Clock = Ember.Object.extend({
-    second: null,
-    minute: null,
-    hour: null,
+        init: function() {
+          this.tick();
+        },
 
-    init: function () {
-        this.tick();
-    },
+        tick: function() {
+          var now = new Date()
 
-    tick: function () {
-        var now = new Date()
-
-        this.setProperties({
+          this.setProperties({
             second: now.getSeconds(),
             minute: now.getMinutes(),
-            hour: now.getHours()
-        });
+            hour:   now.getHours()
+          });
 
-        var self = this;
-        setTimeout(function () {
-            self.tick();
-        }, ONE_SECOND)
-    }
-});
-
-App.clock = App.Clock.create();
-
-App.Router.map(function () {
-    this.resource('submissions.stream', {path: '/new'}, function () {
-        this.route('custom', {path: ':args'});
-    });
-    this.resource('comments', function () {
-        this.route('tree', {path: '/tree/:comment_id'});
-    });
-    this.resource('reddit', {path: '/*reddit_path'});
-});
-
-App.submissions = Em.A();
-
-App.IndexRoute = Ember.Route.extend({
-    redirect: function () {
-        this.transitionTo('reddit', 'r/all');
-    }
-});
-
-App.SubmissionsStreamIndexRoute = Ember.Route.extend({
-    redirect: function () {
-        this.transitionTo('submissions.stream.custom', '');
-    }
-});
-
-App.CommentsTreeRoute = Ember.Route.extend({
-    model: function (params) {
-        var promise = Ember.Deferred.create(),
-                url = "http://api-dev.redditanalytics.com/comment_tree?id=";
-        $.ajax({
-            url: url + params.comment_id
-        }).then(function (response) {
-                    promise.resolve(response);
-                }, function (error) {
-                    promise.reject(error);
-                });
-        return promise;
-    },
-    serialize: function (model) {
-        return {
-            comment_id: model.id
-        };
-    }
-});
-
-App.RedditRoute = Ember.Route.extend({
-    model: function (params) {
-        var promise = Ember.Deferred.create(),
-                url = "http://reddit.com/",
-                redditPath = params.reddit_path,
-                parts = redditPath.split('?', 2);
-        if (parts.length > 1) {
-            redditPath = parts[0] + '.json?' + parts[1] + '&jsonp=?';
-        } else {
-            redditPath = redditPath + '.json?jsonp=?';
+          Em.run.later(this, this.tick, 1000);
         }
+      });
+      App.clock = App.Clock.create();
 
-        $.ajax({
-            url: url + redditPath,
+      App.Router.map(function() {
+        this.resource('submissions.stream', {path: '/new'}, function() {
+          this.route('custom', {path: ':args'});
+        });
+        this.resource('comments', function() {
+          this.route('tree', {path: '/tree/:comment_id'});
+        });
+        this.resource('reddit', {path: '/*reddit_path'});
+      });
+
+      App.IndexRoute = Ember.Route.extend({
+        redirect: function() {
+          this.transitionTo('reddit', 'r/all');
+        }
+      });
+
+      App.SubmissionsStreamIndexRoute = Ember.Route.extend({
+        redirect: function() {
+          this.transitionTo('submissions.stream.custom', '');
+        }
+      });
+
+      App.CommentsTreeRoute = Ember.Route.extend({
+        model: function(params) {
+          var promise = Ember.Deferred.create(),
+              url = "http://api-dev.redditanalytics.com/comment_tree?id=";
+          $.ajax({
+            url: url + params.comment_id
+          }).then(function(response) {
+            promise.resolve(response);
+          }, function(error) {promise.reject(error);});
+          return promise;
+        },
+        serialize: function(model) {
+          return {
+            comment_id: model.id
+          };
+        }
+      });
+
+      App.RedditRoute = Ember.Route.extend({
+        model: function(params) {
+          var promise = Ember.Deferred.create(),
+              url = "http://reddit.com/",
+              redditPath = params.reddit_path,
+              parts = redditPath.split('?', 2),
+              redditPathJson;
+          if (parts.length > 1) {
+            redditPathJson = parts[0] + '.json?' + parts[1] + '&jsonp=?';
+          } else {
+            redditPathJson = redditPath + '.json?jsonp=?';
+          }
+
+          $.ajax({
+            url: url + redditPathJson,
             dataType: 'jsonp'
-        }).then(function (response) {
-                    promise.resolve(response);
-                }, function (error) {
-                    promise.reject(error);
-                });
-        return promise;
-    },
-    serialize: function (model) {
-        return {
+          }).then(function(response) {
+            response.redditPath = redditPath;
+            promise.resolve(response);
+          }, function(error) {promise.reject(error);});
+          return promise;
+        },
+        serialize: function(model) {
+          return {
             reddit_path: model
-        };
-    }
-});
+          };
+        }
+      });
 
-App.SubmissionsStreamCustomRoute = Ember.Route.extend({
-    model: function (params) {
-        return params.args || '';
-    },
-    serialize: function (model) {
-        return {args: model || ''};
-    },
+      App.SubmissionsStreamCustomRoute = Ember.Route.extend({
+        model: function(params) {
+          return params.args || '';
+        },
+        serialize: function(model) {
+          return {args: model || ''};
+        },
 
-    setupController: function (controller, model) {
-        var submissionsStream = this.controllerFor('submissions.stream');
-        submissionsStream.set('args', model);
-    }
-});
+        setupController: function(controller, model) {
+          var submissionsStream = this.controllerFor('submissions.stream');
+          submissionsStream.set('args', model);
+        }
+      });
 
-App.SubmissionsStreamController = Ember.Controller.extend({
-    args: null,
+      App.SubmissionsStreamController = Ember.Controller.extend({
+        args: null,
 
-    newArgs: function () {
-        return this.get('args') || '';
-    }.property('args'),
+        newArgs: function() {
+          return this.get('args') || '';
+        }.property('args'),
 
-    submissions: function () {
-        return Em.A();
-    }.property('args'),
+        submissions: function() {
+          return Em.A();
+        }.property('args'),
 
-    eventSource: function () {
-        var args = this.get('args'),
-                submissions = this.get('submissions');
+        eventSource: function() {
+          var args = this.get('args'),
+              submissions = this.get('submissions');
 
-        if (args != null) {
+          if (args != null) {
             var url = 'http://api-dev.redditanalytics.com/submission_stream?eventsource=true&' + args;
-            eventSource = new EventSource(url);
+                eventSource = new EventSource(url);
 
-            eventSource.onmessage = function (evt) {
-                var post = JSON.parse(evt.data);
-                submissions.insertAt(0, post);
+            eventSource.onmessage = function(evt) {
+              var post = JSON.parse(evt.data);
+              submissions.insertAt(0, post);
             };
             return eventSource;
-        }
-    }.property('args'),
+          }
+        }.property('args'),
 
-    eventSourceWillChange: function () {
-        var es = this.get('eventSource');
-        if (es && es.disconnect) {
+        eventSourceWillChange: function() {
+          var es = this.get('eventSource');
+          if (es && es.disconnect) {
             es.disconnect()
-        }
-    }.observesBefore('eventSource'),
+          }
+        }.observesBefore('eventSource'),
 
-    argsDidChange: function () {
-        this.get('eventSource');
-    }.observes('args').on('init')
-});
+        argsDidChange: function() {
+          this.get('eventSource');
+        }.observes('args').on('init')
+      });
 
-App.RedditItemMixin = Ember.Mixin.create({
-    redditDomain: 'http://reddit.com',
-    clock: App.clock,
+      App.RedditItemMixin = Ember.Mixin.create({
+        redditDomain: 'http://reddit.com',
+        clock: App.clock,
 
-    permalinkPath: function () {
-        var permalink = this.get('permalink');
-        if (permalink) {
+        permalinkPath: function() {
+          var permalink = this.get('permalink');
+          if (permalink) {
             return permalink.substr(1);
-        }
-    }.property('permalink'),
+          }
+        }.property('permalink'),
 
-    authorPath: function () {
-        return 'user/' + this.get('author');
-    }.property('author'),
+        authorPath: function() {
+          return 'user/' + this.get('author');
+        }.property('author'),
 
-    subredditPath: function () {
-        return 'r/' + this.get('subreddit');
-    }.property('subreddit'),
+        subredditPath: function() {
+          return 'r/' + this.get('subreddit');
+        }.property('subreddit'),
 
-    children: function () {
-        var children = this.get('content.children') || this.get('content.replies.data.children') || [];
-        return children.map(function (child) {
-            return child.data || child;
-        });
-    }.property('content'),
+        thumbnail: function() {
+          var thumbnail = this.get('model.thumbnail');
+          if (['self', 'default'].contains(thumbnail)) {
+            return '/images/no_thumbnail.gif';
+          } else if (thumbnail === 'nsfw') {
+            return '/images/nsfw.gif';
+          }
+          return thumbnail;
+        }.property('model.thumbnail'),
 
-    created: function () {
-        return moment.utc(this.get('model.created_utc') * 1000).fromNow();
-    }.property('model.created_utc', 'clock.second')
-});
-App.Router.reopen({
-    location: 'history'
-});
-App.SubmissionItemController = Ember.ObjectController.extend(App.RedditItemMixin);
+        score: function() {
+          var score = this.get('model.score'),
+              ups = this.get('ups') || 0,
+              downs = this.get('downs') || 0;
+          if (score) {
+            return score;
+          }
+          return ups - downs;
+        }.property('model.score', 'ups', 'downs'),
 
-App.CommentsTreeController = Ember.ObjectController.extend(App.RedditItemMixin);
+        children: function() {
+          var children = this.get('model.children') || this.get('model.replies.data.children') || [];
+          return children.map(function(child) {return child.data || child;});
+        }.property('model'),
 
-App.RedditController = Ember.Controller.extend({
-    listings: function () {
-        var content = this.get('content');
-        if (Em.isArray(content)) {
-            return content.filterProperty('kind', 'Listing');
-        } else if (content.kind && content.kind === 'Listing') {
-            return [content];
-        }
-        return [];
-    }.property('content'),
+        created: function() {
+          return moment.utc(this.get('model.created_utc') * 1000).fromNow();
+        }.property('model.created_utc', 'clock.minute')
+      });
 
-    listingsChildren: function () {
-        var children = [];
-        this.get('listings').forEach(function (listing) {
+      App.SubmissionItemController = Ember.ObjectController.extend(App.RedditItemMixin);
+
+      App.CommentsTreeController = Ember.ObjectController.extend(App.RedditItemMixin);
+
+      App.RedditController = Ember.Controller.extend({
+        listings: function() {
+          var model = this.get('model');
+          if (Em.isArray(model)) {
+            return model.filterProperty('kind', 'Listing');
+          } else if (model.kind  && model.kind === 'Listing') {
+            return [model];
+          }
+          return [];
+        }.property('model'),
+
+        listingsChildren: function() {
+          var children = [];
+          this.get('listings').forEach(function(listing) {
             if (Em.isArray(listing.data.children)) {
-                children.addObjects(listing.data.children);
+              children.addObjects(listing.data.children);
             }
-        })
-        return children;
-    }.property('listings'),
+          })
+          return children;
+        }.property('listings'),
 
-    posts: function () {
-        return this.get('listingsChildren').filterProperty('kind', 't3').map(function (item) {
-            return item.data
-        });
-    }.property('listingsChildren'),
+        posts: function() {
+          return this.get('listingsChildren').filterProperty('kind', 't3').map(function(item) {return item.data});
+        }.property('listingsChildren'),
 
-    comments: function () {
-        var comments = this.get('listingsChildren').filterProperty('kind', 't1').map(function (item) {
-            return item.data
-        });
-        return comments;
-    }.property('listingsChildren')
+        comments: function() {
+          var comments = this.get('listingsChildren').filterProperty('kind', 't1').map(function(item) {return item.data});
+          return comments;
+        }.property('listingsChildren'),
 
+        hasMultiplePosts: function() {
+          return this.get('posts.length') > 1;
+        }.property('posts'),
 
-});
-</script>
-</body>
+        lastPostId: Em.computed.alias('posts.lastObject.id'),
+        firstPostId: Em.computed.alias('posts.firstObject.id'),
+
+        nextPath: function() {
+          var hasMultiplePosts = this.get('hasMultiplePosts'),
+              lastPostId = this.get('lastPostId'),
+              path = this.get('model.redditPath'),
+              parts = path.split('?', 2);
+          if (hasMultiplePosts && lastPostId) {
+            if (parts.length > 1) {
+              path = path.replace(/(before=)[^\&]+/, '');
+              return path.replace(/(after=)[^\&]+/, '$1' + 't3_' + lastPostId);
+            } else {
+              return this.get('model.redditPath') + '?after=t3_' + lastPostId;
+            }
+          }
+        }.property('hasMultiplePosts', 'lastPostId'),
+
+        prevPath: function() {
+          var hasMultiplePosts = this.get('hasMultiplePosts'),
+              firstPostId = this.get('firstPostId'),
+              path = this.get('model.redditPath'),
+              parts = path.split('?', 2);
+          if (hasMultiplePosts && firstPostId) {
+            if (parts.length > 1) {
+              path = path.replace(/(after=)[^\&]+/, '');
+              return path.replace(/(before=)[^\&]+/, '$1' + 't3_' + firstPostId);
+            } else {
+              return this.get('model.redditPath') + '?before=t3_' + firstPostId;
+            }
+          }
+        }.property('hasMultiplePosts', 'firstPostId')
+      });
+    </script>
+  </body>
 </html>
