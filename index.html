@@ -52,7 +52,7 @@
         padding: 1em;
         margin: 0 0 0 0;
       }
-      .submission-list > .submission:nth-child(odd) {
+      .submission-list > .submission:nth-child(even) {
         background-color: #EEEEEE;
       }
       article.container {
@@ -198,7 +198,12 @@
     <script type="text/x-handlebars" data-template-name="commentItem">
       <li class='comment'>
         <div class='meta'>
-          by {{#linkTo 'reddit' authorPath class="author"}}{{unbound author}}{{/linkTo}}
+          by
+          {{#linkTo 'reddit' authorPath class="author"}}{{unbound author}}
+            {{#if author_flair_text}}
+              <span class='label label-info link-flair'>{{unbound author_flair_text}}</span>
+            {{/if}}
+          {{/linkTo}}
           {{#if score_hidden}}
             <span class='score-hidden'>[score hidden]</span>
           {{else}}
@@ -221,7 +226,7 @@
           {{partial "commentItem"}}
         {{/each}}
         {{#each moreComments}}
-          <li class='more'>and {{unbound count}} replies</li>
+          <li class='more'>and {{unbound count}} replies </li>
         {{/each}}
         </ul>
       </li>
@@ -630,6 +635,12 @@
             }
           }
         }.property('hasMultiplePosts', 'firstPostId')
+      });
+
+      App.RedditView = Em.View.extend({
+        scrollToTop: function() {
+          window.scrollTo(0, 0);
+        }.observes('controller.model').on('didInsertElement')
       });
     </script>
   </body>
