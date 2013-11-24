@@ -71,6 +71,7 @@
         padding-left: 1em;
       }
 
+      .submission .domain,
       .comment .meta {
         color: #888;
       }
@@ -163,6 +164,7 @@
         {{/if}}
         <div class='media-body'>
           <span class='media-heading'><a href="{{unbound url}}" target="reddit">{{unbound title}}</a></span>
+          {{#linkTo 'reddit' domainPath class='domain'}}({{unbound domain}}){{/linkTo}}
           {{#if link_flair_text}}
             <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
           {{/if}}
@@ -470,6 +472,16 @@
             return '/r/' + subreddit + '/comments/' + linkId + '/_/' + id;
           }
         }.property('content.permalink', 'link_id', 'id', 'subreddit'),
+
+        domainPath: function() {
+          var domain = this.get('domain');
+          if (domain) {
+            if ('self.' === domain.substr(0, 5)) {
+              return this.get('subredditPath');
+            }
+            return 'domain/' + domain;
+          }
+        }.property('domain'),
 
         permalinkPath: function() {
           var permalink = this.get('permalink');
