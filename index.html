@@ -592,7 +592,7 @@
         }.property('model'),
 
         childComments: function() {
-          return this.get('children').filterProperty('created');
+          return this.get('children').filterProperty('created_utc');
         }.property('children'),
 
         moreComments: function() {
