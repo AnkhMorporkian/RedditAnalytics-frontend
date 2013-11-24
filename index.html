@@ -477,6 +477,9 @@
             eventSource.onmessage = function(evt) {
               var post = JSON.parse(evt.data);
               submissions.insertAt(0, post);
+              while (submissions.get('length') > 100) {
+                submissions.popObject();
+              }
             };
             return eventSource;
           }
