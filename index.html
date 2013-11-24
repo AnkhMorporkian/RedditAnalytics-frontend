@@ -503,7 +503,8 @@
         }.property('model.selftext_html'),
 
         body: function() {
-          return App.htmlDecode(this.get('model.body_html') || '');
+          var body = this.get('model.body_html') || this.get('model.body');
+          return App.htmlDecode(body) || '';
         }.property('model.body_html'),
 
         permalink: function() {
