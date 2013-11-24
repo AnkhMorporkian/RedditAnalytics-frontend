@@ -5,6 +5,30 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
     <style type='text/css'>
+      .sidebar {
+        font-size: 80%;
+        width: 300px;
+      }
+
+      .sidebar h1 {
+        font-size: 150%;
+      }
+      .sidebar h2 {
+        font-size: 140%;
+      }
+      .sidebar h3 {
+        font-size: 130%;
+      }
+      .sidebar h4 {
+        font-size: 120%;
+      }
+      .sidebar h5 {
+        font-size: 110%;
+      }
+      .sidebar h6 {
+        font-size: 100%;
+      }
+
       .ups, .downs, .score {
         text-align: right;
         width: 4em;
@@ -200,6 +224,14 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="reddit">
+      {{#if sidebarHtml}}
+        <section class='sidebar well pull-right'>
+          <h1 class='subreddit-title'>
+            {{#linkTo 'reddit' sidebar.subredditPath}}/r/{{sidebar.display_name}}{{/linkTo}}
+          </h1>
+          {{{sidebarHtml}}}
+        </section>
+      {{/if}}
       <div class='submission-list'>
       {{#each posts itemController="submissionItem"}}
         {{partial "submissionItem"}}
@@ -493,6 +525,30 @@
         posts: function() {
           return this.get('listingsChildren').filterProperty('kind', 't3').map(function(item) {return item.data});
         }.property('listingsChildren'),
+
+        subreddits: function() {
+          return this.get('posts').getEach('subreddit').uniq();
+        }.property('posts'),
+
+        sidebar: function() {
+          var subreddits = this.get('subreddits'),
+              sidebar = Em.Object.create();
+          if (subreddits.get('length') === 1) {
+            $.ajax({
+              url: 'http://reddit.com/r/' + subreddits.get('firstObject') + '/about.json?jsonp=?',
+              dataType: 'jsonp'
+            }).then(function(response) {
+              sidebar.set('subredditPath', 'r/' + subreddits.get('firstObject'));
+              sidebar.setProperties(response.data);
+            });
+            return sidebar;
+          }
+        }.property('subreddits'),
+
+        sidebarHtml: function() {
+          var html = this.get('sidebar.description_html');
+          if (html) { return App.htmlDecode(html); }
+        }.property('sidebar.description_html'),
 
         comments: function() {
           var comments = this.get('listingsChildren').filterProperty('kind', 't1').map(function(item) {return item.data});
