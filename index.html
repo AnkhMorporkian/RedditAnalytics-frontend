@@ -396,14 +396,8 @@
 
       App.CommentsTreeRoute = Ember.Route.extend({
         model: function(params) {
-          var promise = Ember.Deferred.create(),
-              url = "http://api-dev.redditanalytics.com/comment_tree?id=";
-          $.ajax({
-            url: url + params.comment_id
-          }).then(function(response) {
-            promise.resolve(response);
-          }, function(error) {promise.reject(error);});
-          return promise;
+          var url = "http://api-dev.redditanalytics.com/comment_tree?id=";
+          return $.ajax({url: url + params.comment_id});
         },
         serialize: function(model) {
           return {
@@ -414,8 +408,7 @@
 
       App.RedditRoute = Ember.Route.extend({
         model: function(params) {
-          var promise = Ember.Deferred.create(),
-              url = "http://reddit.com/",
+          var url = "http://reddit.com/",
               redditPath = params.reddit_path,
               parts = redditPath.split('?', 2),
               redditPathJson;
@@ -425,14 +418,13 @@
             redditPathJson = redditPath + '.json?jsonp=?';
           }
 
-          $.ajax({
+          return Ember.RSVP.resolve($.ajax({
             url: url + redditPathJson,
             dataType: 'jsonp'
           }).then(function(response) {
             response.redditPath = redditPath;
-            promise.resolve(response);
-          }, function(error) {promise.reject(error);});
-          return promise;
+            return response;
+          }));
         },
         serialize: function(model) {
           return {
