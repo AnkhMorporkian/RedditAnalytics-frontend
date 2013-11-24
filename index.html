@@ -14,8 +14,19 @@
       }
 
       .sidebar {
+        margin-top: 1em;
+        background: url('/images/blue-linen.jpg');
+        color: white;
         font-size: 80%;
         width: 300px;
+        border-radius: 1em;
+      }
+      .sidebar table {
+        font-size: 100%;
+      }
+
+      .sidebar a {
+        color: #BBB;
       }
 
       .sidebar h1 {
@@ -63,7 +74,11 @@
       .submission-list > .submission:nth-child(even) {
         background-color: #EEEEEE;
       }
+      body {
+        background: url('/images/white-linen.jpg');
+      }
       article.container {
+        background-color: rgba(255, 255, 255, 0.5);
         width: 100%;
         padding-top: 50px;
         padding-bottom: 25px;
@@ -79,9 +94,14 @@
         padding-left: 1em;
       }
 
+      .comment .meta,
+      .comment .body,
+      .comment .buttons {
+      }
+
       .submission .domain,
       .comment .meta {
-        color: #888;
+        color: #666;
       }
 
       .comment .meta a {
@@ -103,8 +123,10 @@
       }
 
       .comment .buttons a {
-        color: #888;
+        color: #666;
         font-weight: bold;
+        margin-top: 0;
+        padding-top: 1em;
         margin-right: 0.5em;
       }
 
@@ -225,8 +247,7 @@
         </div>
         <section class='body'>
           {{{unbound body}}}
-        </section>
-        <div class='buttons'>
+        </section><div class='buttons'>
           {{#linkTo 'reddit' permalinkPath class='permalink'}}permalink{{/linkTo}}
           {{#linkTo 'comments.tree' id class="comment-tree-search"}}search{{/linkTo}}
         </div>
