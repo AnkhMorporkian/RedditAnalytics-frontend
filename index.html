@@ -170,6 +170,9 @@
             <span class='score'>{{unbound score}} points</span>
           {{/if}}
           <span class='date'>{{unbound created}}</span>
+          {{#if gilded}}
+            <span class='gilded glyphicon glyphicon-star-empty label label-warning'>{{gilded}}</span>
+          {{/if}}
         </div>
         <section class='body'>
           {{unbound body}}
