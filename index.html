@@ -97,6 +97,10 @@
         font-weight: bold;
         margin-right: 0.5em;
       }
+
+      .has-multiple-posts .selftext {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -179,6 +183,11 @@
               {{/if}}
             {{/linkTo}}
             to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{unbound subreddit}}{{/linkTo}}
+            {{#if selfText}}
+              <section class='well selftext'>
+                {{{unbound selfText}}}
+              </section>
+            {{/if}}
           </div>
         </div>
       </div>
@@ -224,40 +233,42 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="reddit">
-      {{#if sidebarHtml}}
-        <section class='sidebar well pull-right'>
-          <h1 class='subreddit-title'>
-            {{#linkTo 'reddit' sidebar.subredditPath}}/r/{{sidebar.display_name}}{{/linkTo}}
-          </h1>
-          {{{sidebarHtml}}}
-        </section>
-      {{/if}}
-      <div class='submission-list'>
-      {{#each posts itemController="submissionItem"}}
-        {{partial "submissionItem"}}
-      {{/each}}
-      </div>
-
-      <ul class='comments'>
-      {{#each comments itemController="commentsTree"}}
-        {{partial "commentItem"}}
-      {{/each}}
-      </ul>
-
-      <div class='page-nav'>
-        {{#if hasMultiplePosts}}
-          view more:
-          {{#if prevPath}}
-            {{#linkTo 'reddit' prevPath class='label label-default'}}&laquo; prev{{/linkTo}}
-          {{/if}}
-          {{#if nextPath}}
-            {{#linkTo 'reddit' nextPath class='label label-default'}}next &raquo;{{/linkTo}}
-          {{/if}}
-          {{!--
-          or try a {{#linkTo 'reddit' 'r/random' class='label label-default'}}random subreddit{{/linkTo}}
-          --}}
+      <section {{bindAttr class='hasMultiplePosts :reddit'}}>
+        {{#if sidebarHtml}}
+          <section class='sidebar well pull-right'>
+            <h1 class='subreddit-title'>
+              {{#linkTo 'reddit' sidebar.subredditPath}}/r/{{sidebar.display_name}}{{/linkTo}}
+            </h1>
+            {{{sidebarHtml}}}
+          </section>
         {{/if}}
-      </div>
+        <div class='submission-list'>
+        {{#each posts itemController="submissionItem"}}
+          {{partial "submissionItem"}}
+        {{/each}}
+        </div>
+
+        <ul class='comments'>
+        {{#each comments itemController="commentsTree"}}
+          {{partial "commentItem"}}
+        {{/each}}
+        </ul>
+
+        <div class='page-nav'>
+          {{#if hasMultiplePosts}}
+            view more:
+            {{#if prevPath}}
+              {{#linkTo 'reddit' prevPath class='label label-default'}}&laquo; prev{{/linkTo}}
+            {{/if}}
+            {{#if nextPath}}
+              {{#linkTo 'reddit' nextPath class='label label-default'}}next &raquo;{{/linkTo}}
+            {{/if}}
+            {{!--
+            or try a {{#linkTo 'reddit' 'r/random' class='label label-default'}}random subreddit{{/linkTo}}
+            --}}
+          {{/if}}
+        </div>
+      </section>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -427,6 +438,22 @@
       App.RedditItemMixin = Ember.Mixin.create({
         redditDomain: 'http://reddit.com',
         clock: App.clock,
+
+        url: function() {
+          var url = this.get('model.url'),
+              parts = url.split('reddit.com/', 2);
+          if (parts.length > 1) {
+            return '/' + parts[1];
+          }
+          return url;
+        }.property('model.url'),
+
+        selfText: function() {
+          var self_text = this.get('model.selftext_html');
+          if (self_text) {
+            return App.htmlDecode(self_text);
+          }
+        }.property('model.selftext_html'),
 
         body: function() {
           return App.htmlDecode(this.get('model.body_html') || '');
