@@ -42,6 +42,23 @@
         padding-left: 1em;
       }
 
+      ul.comments li.comment {
+        border-left: 1px solid #eeeeee;
+        padding-left: 1em;
+      }
+
+      .comment .meta {
+        color: #888;
+      }
+
+      .comment .meta a {
+        font-weight: bold;
+      }
+
+      a {
+        color: #369;
+      }
+
       .submission .media-heading {
         font-size: 120%;
       }
@@ -49,6 +66,12 @@
       .stickied .media-heading a {
         font-weight: bold;
         color: green;
+      }
+
+      .comment .buttons a {
+        color: #888;
+        font-weight: bold;
+        margin-right: 0.5em;
       }
     </style>
   </head>
@@ -99,26 +122,26 @@
     <script type="text/x-handlebars" data-template-name="submissionItem">
       <div {{bind-attr class='stickied :submission :media'}}>
           <div class='pull-left votes'>
-            <div class='ups'>{{ups}}</div>
-            <div class='score'>{{score}}</div>
-            <div class='downs'>{{downs}}</div>
+            <div class='ups'>{{unbound ups}}</div>
+            <div class='score'>{{unbound score}}</div>
+            <div class='downs'>{{unbound downs}}</div>
           </div>
         {{#if thumbnail}}
           <div class='pull-left'>
-            <a {{bindAttr href=url}} target='reddit'>
-              <img class='media-object' {{bindAttr src=thumbnail}}/>
+            <a href="{{unbound url}}" target="reddit">
+              <img class='media-object' src="{{unbound thumbnail}}"/>
             </a>
           </div>
         {{/if}}
         <div class='media-body'>
-          <span class='media-heading'><a {{bindAttr href=url}} target='reddit'>{{title}}</a></span>
+          <span class='media-heading'><a href="{{unbound url}}" target="reddit">{{unbound title}}</a></span>
           {{#if link_flair_text}}
-            <span class='label label-primary link-flair'>{{link_flair_text}}</span>
+            <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
           {{/if}}
           <div class='media'>
             {{#linkTo 'reddit' permalinkPath class="permalink"}}
               {{#if num_comments}}
-                {{num_comments}}
+                {{unbound num_comments}}
               {{/if}}
               comments
             {{/linkTo}}
@@ -126,12 +149,12 @@
             <span class='date'>{{created}}</span>
             by
             {{#linkTo 'reddit' authorPath class="author"}}
-              {{author}}
+              {{unbound author}}
               {{#if author_flair_text}}
-                <span class='label label-info link-flair'>{{link_flair_text}}</span>
+                <span class='label label-info link-flair'>{{unbound author_flair_text}}</span>
               {{/if}}
             {{/linkTo}}
-            to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{subreddit}}{{/linkTo}}
+            to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{unbound subreddit}}{{/linkTo}}
           </div>
         </div>
       </div>
@@ -140,26 +163,27 @@
     <script type="text/x-handlebars" data-template-name="commentItem">
       <li class='comment'>
         <div class='meta'>
-          by {{#linkTo 'reddit' authorPath class="author"}}{{author}}{{/linkTo}}
+          by {{#linkTo 'reddit' authorPath class="author"}}{{unbound author}}{{/linkTo}}
           {{#if score_hidden}}
             <span class='score-hidden'>[score hidden]</span>
           {{else}}
-            <span class='score'>{{score}} points</span>
+            <span class='score'>{{unbound score}} points</span>
           {{/if}}
-          <span class='date'>{{created}}</span>
-          {{#if id}}
-            {{#linkTo 'comments.tree' id class="glyphicon glyphicon-search"}}{{/linkTo}}
-          {{/if}}
+          <span class='date'>{{unbound created}}</span>
         </div>
-        <blockquote>
-          {{#if body}}
-            {{body}}
-          {{else}}
-          {{/if}}
-        </blockquote>
+        <section class='body'>
+          {{unbound body}}
+        </section>
+        <div class='buttons'>
+          {{#linkTo 'reddit' permalinkPath class='permalink'}}permalink{{/linkTo}}
+          {{#linkTo 'comments.tree' id class="comment-tree-search"}}search{{/linkTo}}
+        </div>
         <ul class='comments'>
-        {{#each children itemController="commentsTree"}}
+        {{#each childComments itemController="commentsTree"}}
           {{partial "commentItem"}}
+        {{/each}}
+        {{#each moreComments}}
+          <li class='more'>and {{unbound count}} replies</li>
         {{/each}}
         </ul>
       </li>
@@ -204,7 +228,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.min.js"></script>
     <script type="text/javascript">
       var App = Ember.Application.create();
 
@@ -361,6 +385,18 @@
         redditDomain: 'http://reddit.com',
         clock: App.clock,
 
+        permalink: function() {
+          var permalink = this.get('content.permalink');
+          if (permalink) {return permalink;}
+          var linkId = this.get('link_id'),
+              id = this.get('id'),
+              subreddit = this.get('subreddit');
+          if (linkId && id && subreddit) {
+            linkId = linkId.split('_', 2)[1];
+            return '/r/' + subreddit + '/' + linkId + '/_/' + id;
+          }
+        }.property('content.permalink', 'link_id', 'id', 'subreddit'),
+
         permalinkPath: function() {
           var permalink = this.get('permalink');
           if (permalink) {
@@ -400,6 +436,14 @@
           var children = this.get('model.children') || this.get('model.replies.data.children') || [];
           return children.map(function(child) {return child.data || child;});
         }.property('model'),
+
+        childComments: function() {
+          return this.get('children').filterProperty('created');
+        }.property('children'),
+
+        moreComments: function() {
+          return this.get('children').filterProperty('count');
+        }.property('children'),
 
         created: function() {
           return moment.utc(this.get('model.created_utc') * 1000).fromNow();
