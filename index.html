@@ -156,6 +156,13 @@
                   <a href='#'>/new</a>
                 {{/linkTo}}
               </ul>
+              <ul class='nav navbar-nav navbar-right'>
+                {{#each headerSubreddits}}
+                  {{#linkTo "reddit" this tagName="li"}}
+                    <a href='#'>{{unbound this}}</a>
+                  {{/linkTo}}
+                {{/each}}
+              </ul>
             </div>
           </div>
         </div>
@@ -333,6 +340,11 @@
         return new Handlebars.SafeString(html);
       });
 
+      App.shuffle = function(v){
+        for(var j, x, i = v.length; i; j = parseInt(Math.random() * i), x = v[--i], v[i] = v[j], v[j] = x);
+        return v;
+      };
+
       App.Clock = Ember.Object.extend({
         second: null,
         minute: null,
@@ -483,8 +495,18 @@
       });
 
       App.RedditItemMixin = Ember.Mixin.create({
+        needs: 'application'.w(),
+        subreddits: Em.computed.alias('controllers.application.subreddits'),
+
         redditDomain: 'http://reddit.com',
         clock: App.clock,
+
+        subredditDidChange: function() {
+          var subreddit = this.get('subreddit');
+          if (subreddit) {
+            this.get('subreddits').addObject('r/' + subreddit);
+          }
+        }.observes('subreddit').on('init'),
 
         url: function() {
           var url = this.get('model.url'),
@@ -706,6 +728,18 @@
           var messages = this.get('messages');
           return messages[Math.floor(Math.random() * messages.length)];
         }.property().volatile()
+      });
+
+      App.ApplicationController = Em.Controller.extend({
+        clock: App.clock,
+
+        subreddits: function() {
+          return Em.A();
+        }.property(),
+
+        headerSubreddits: function() {
+          return App.shuffle(this.get('subreddits')).slice(0, 5);
+        }.property('subreddits.@each', 'clock.minute')
       });
 
       App.RedditView = Em.View.extend({
