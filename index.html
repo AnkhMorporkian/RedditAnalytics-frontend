@@ -1,5 +1,6 @@
 <html>
   <head>
+    <title>rednit</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pace/0.4.10/themes/pace-theme-minimal.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/pace/0.4.10/pace.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
@@ -145,7 +146,7 @@
       <div class='navbar navbar-inverse navbar-fixed-top'>
         <div class='navbar-inner'>
           <div class='container'>
-            {{#linkTo "reddit" "r/redditanalytics" class="navbar-brand"}}Rednit{{/linkTo}}
+            {{#linkTo "reddit" "r/redditanalytics" class="navbar-brand"}}rednit{{/linkTo}}
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
                 {{#linkTo "reddit" "r/all" tagName="li"}}
@@ -199,7 +200,7 @@
           </div>
         {{/if}}
         <div class='media-body'>
-          <span class='media-heading'><a href="{{unbound url}}" target="reddit">{{unbound title}}</a></span>
+          <span class='media-heading'><a href="{{unbound url}}" target="reddit">{{{unbound title}}}</a></span>
           {{#linkTo 'reddit' domainPath class='domain'}}({{unbound domain}}){{/linkTo}}
           {{#if link_flair_text}}
             <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
