@@ -314,6 +314,10 @@
       </section>
     </script>
 
+    <script type="text/x-handlebars" data-template-name="loading">
+      <h1 class='loading'>{{loadingMessage}}</h1>
+    </script>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
@@ -671,6 +675,27 @@
             }
           }
         }.property('hasMultiplePosts', 'firstPostId')
+      });
+
+      App.LoadingController = Em.Controller.extend({
+        messages: [
+          'Frying bacon...',
+          'Narwal spotting...',
+          'Taking arrow to the knee...',
+          "GGG Webpage: Tells you when it's loading...",
+          'YUNO render yet?',
+          'I heard you like loading screens; so I [loading]',
+          'Whoring karma...',
+          'Reposting cats pictures...',
+          'Reticulating splines...',
+          'Generating puns...',
+          'Hunting witches...',
+          'Downvoting memes...'
+        ],
+        loadingMessage: function() {
+          var messages = this.get('messages');
+          return messages[Math.floor(Math.random() * messages.length)];
+        }.property().volatile()
       });
 
       App.RedditView = Em.View.extend({
