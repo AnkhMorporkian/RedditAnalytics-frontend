@@ -220,6 +220,9 @@
                 {{{unbound selfText}}}
               </section>
             {{/if}}
+            {{#if over_18}}
+              <span class="label label-danger nsfw">NSFW</span>
+            {{/if}}
             {{#linkTo 'reddit' permalinkPath class="permalink"}}
               {{#if num_comments}}
                 {{unbound num_comments}}
