@@ -175,7 +175,7 @@
           {{/if}}
         </div>
         <section class='body'>
-          {{unbound body}}
+          {{{unbound body}}}
         </section>
         <div class='buttons'>
           {{#linkTo 'reddit' permalinkPath class='permalink'}}permalink{{/linkTo}}
@@ -234,6 +234,14 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.1.2/ember.min.js"></script>
     <script type="text/javascript">
       var App = Ember.Application.create();
+
+      App.htmlDecode = function(value){
+        return $('<div/>').html(value).text();
+      };
+
+      Ember.Handlebars.registerHelper('html', function(html) {
+        return new Handlebars.SafeString(html);
+      });
 
       App.Clock = Ember.Object.extend({
         second: null,
@@ -388,6 +396,10 @@
         redditDomain: 'http://reddit.com',
         clock: App.clock,
 
+        body: function() {
+          return App.htmlDecode(this.get('model.body_html') || '');
+        }.property('model.body_html'),
+
         permalink: function() {
           var permalink = this.get('content.permalink');
           if (permalink) {return permalink;}
@@ -396,7 +408,7 @@
               subreddit = this.get('subreddit');
           if (linkId && id && subreddit) {
             linkId = linkId.split('_', 2)[1];
-            return '/r/' + subreddit + '/' + linkId + '/_/' + id;
+            return '/r/' + subreddit + '/comments/' + linkId + '/_/' + id;
           }
         }.property('content.permalink', 'link_id', 'id', 'subreddit'),
 
