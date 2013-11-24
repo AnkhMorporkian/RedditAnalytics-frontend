@@ -169,6 +169,11 @@
             <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
           {{/if}}
           <div class='media'>
+            {{#if selfText}}
+              <section class='well selftext'>
+                {{{unbound selfText}}}
+              </section>
+            {{/if}}
             {{#linkTo 'reddit' permalinkPath class="permalink"}}
               {{#if num_comments}}
                 {{unbound num_comments}}
@@ -185,11 +190,6 @@
               {{/if}}
             {{/linkTo}}
             to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{unbound subreddit}}{{/linkTo}}
-            {{#if selfText}}
-              <section class='well selftext'>
-                {{{unbound selfText}}}
-              </section>
-            {{/if}}
           </div>
         </div>
       </div>
