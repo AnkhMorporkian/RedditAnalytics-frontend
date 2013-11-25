@@ -232,11 +232,17 @@
             {{/if}}
             {{#if imageUrl}}
               {{#unless parentController.hasMultiplePosts}}
-              {{#unless over_18}}
-              <section class='well submission-image'>
-                <img src='{{unbound imageUrl}}' alt='{{unbound url}}'/>
-              </section>
-              {{/unless}}
+                {{#if over_18}}
+                  {{#if parentController.isSinglePost}}
+                    <section class='well submission-image'>
+                      <img src='{{unbound imageUrl}}' alt='{{unbound url}}'/>
+                    </section>
+                  {{/if}}
+                {{else}}
+                  <section class='well submission-image'>
+                    <img src='{{unbound imageUrl}}' alt='{{unbound url}}'/>
+                  </section>
+                {{/if}}
               {{/unless}}
             {{/if}}
             {{#if youtubeId}}
@@ -788,7 +794,11 @@
 
         hasMultiplePosts: function() {
           return this.get('posts.length') > 1;
-        }.property('posts'),
+        }.property('posts.length'),
+
+        isSinglePost: function() {
+          return this.get('posts.length') === 1;
+        }.property('posts.length'),
 
         lastPostId: Em.computed.alias('posts.lastObject.id'),
         firstPostId: Em.computed.alias('posts.firstObject.id'),
