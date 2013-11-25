@@ -1009,7 +1009,7 @@
         loadingMessage: function() {
           var messages = this.get('messages');
           return messages[Math.floor(Math.random() * messages.length)];
-        }.property().volatile(),
+        }.property('clock.minute').volatile(),
 
         subreddits: function() {
           return Em.A();
