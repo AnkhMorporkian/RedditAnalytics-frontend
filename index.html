@@ -173,7 +173,7 @@
     </script>
     <script type="text/x-handlebars" data-template-name="submissions/stream">
       <div class="input-group">
-        <span class="input-group-addon">http://stream.rednit.com/?channel=submissions&amp;</span>
+        <span class="input-group-addon">http://api.rednit.com/submission_stream?</span>
         {{input class="form-control" value=newArgs placeholder="Stream URL arguments" size="128"}}
         {{#linkTo "submissions.stream.custom" newArgs class='input-group-addon'}}
           Change Stream
@@ -492,7 +492,7 @@
               submissions = this.get('submissions');
 
           if (args != null) {
-            var url = 'http://stream.rednit.com/submission_stream?eventsource=true&' + args;
+            var url = 'http://api.rednit.com/submission_stream?eventsource=true&' + args;
                 eventSource = new EventSource(url);
 
             eventSource.onmessage = function(evt) {
@@ -772,9 +772,9 @@
                 headers: {
                   Authorization: 'OAuth 0123456789abcdef0123456789abcdef'
                 },
-                user:     this.get('username'),
-                passwd:   this.get('password')
-              }
+              },
+              user:     this.get('username'),
+              passwd:   this.get('password')
             },
             dataType: 'jsonp'
           }).then(function(response) {
