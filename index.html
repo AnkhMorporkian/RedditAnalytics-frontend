@@ -147,6 +147,10 @@
       .has-multiple-posts .selftext {
         display: none;
       }
+      .has-multiple-posts .submission-image {
+        max-width: 100%;
+        max-height: 800px;
+      }
     </style>
   </head>
   <body>
@@ -158,10 +162,10 @@
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
                 {{#linkTo "reddit" "r/all" tagName="li"}}
-                  <a href='#' class='dummy'>/r/all</a>
+                  <a href='/r/all' class='dummy'>/r/all</a>
                 {{/linkTo}}
                 {{#linkTo "submissions.stream" tagName="li"}}
-                  <a href='#' class='dummy'>/new</a>
+                  <a href='/new' class='dummy'>/new</a>
                 {{/linkTo}}
               </ul>
               <ul class='nav navbar-nav navbar-right'>
@@ -225,6 +229,23 @@
               <section class='well selftext'>
                 {{{unbound selfText}}}
               </section>
+            {{/if}}
+            {{#if imageUrl}}
+              {{#unless parentController.hasMultiplePosts}}
+              {{#unless over_18}}
+              <section class='well submission-image'>
+                <img src='{{unbound imageUrl}}' alt='{{unbound url}}'/>
+              </section>
+              {{/unless}}
+              {{/unless}}
+            {{/if}}
+            {{#if youtubeId}}
+              {{#unless parentController.hasMultiplePosts}}
+              <section class='well submission-video'>
+                <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{unbound youtubeId}}" allowfullscreen frameborder="0">
+</iframe>
+              </section>
+              {{/unless}}
             {{/if}}
             {{#if over_18}}
               <span class="label label-danger nsfw">NSFW</span>
@@ -371,6 +392,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.2.0-beta.4/ember.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.7.2/URI.min.js"></script>
     <script type="text/javascript">
       var App = Ember.Application.create();
 
@@ -585,6 +607,32 @@
           }
           return url;
         }.property('model.url'),
+
+        imageUrl: function() {
+          var url = this.get('url'),
+              domain = this.get('domain');
+          if (!url) { return;}
+          var ext = '',
+              parts = url.split('.');
+          if (parts.length) {
+            ext = parts[parts.length - 1];
+            if (ext) {ext = ext.toLowerCase()}
+          }
+          if (['jpeg', 'jpg', 'png', 'gif'].contains(ext)) {
+            return url;
+          }
+          if (['imgur.com', 'i.imgur.com'].contains(this.get('domain'))) {
+            return url + '.jpg';
+          }
+        }.property('url'),
+
+        youtubeId: function() {
+          var url = this.get('url'),
+              domain = this.get('domain');
+          if (['youtube.com'].contains(domain)) {
+            return URI(url).query(true).v;
+          }
+        }.property('url'),
 
         selfText: function() {
           var self_text = this.get('model.selftext_html');
