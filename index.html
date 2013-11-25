@@ -19,6 +19,18 @@
         color: white;
       }
 
+      @-webkit-keyframes pulse {
+          0% {background-color: rgba(255, 255, 255, 0.1);}
+          100% {background-color: rgba(255, 0, 0, 0.1);}
+      }
+
+      .loading {
+        -webkit-animation: pulse 1s infinite alternate;
+        text-align: center;
+        padding-top: 3em;
+        padding-bottom: 3em;
+      }
+
       section.sidebar {
         margin-top: 1em;
         color: white;
@@ -206,9 +218,9 @@
       {{else}}
         <div class='waiting media'>
           <div class='media-body'>
-            <h4 class='media-heading'>
-              Waiting for submissions...
-            </h4>
+            <h1 class='loading'>
+              {{loadingMessage}}
+            </h1>
           </div>
         </div>
       {{/each}}
@@ -561,6 +573,9 @@
       });
 
       App.SubmissionsStreamController = Ember.Controller.extend({
+        needs: 'application'.w(),
+        loadingMessage: Em.computed.alias('controllers.application.loadingMessage'),
+
         args: null,
 
         newArgs: function() {
@@ -855,33 +870,8 @@
       });
 
       App.LoadingController = Em.Controller.extend({
-        messages: [
-          'Frying bacon...',
-          'Narwal spotting...',
-          'Taking arrow to the knee...',
-          "GGG Webpage: Tells you when it's loading...",
-          'YUNO render yet?',
-          'I heard you like loading screens; so I [loading]',
-          'Whoring karma...',
-          'Reposting cats pictures...',
-          'Reticulating splines...',
-          'Generating puns...',
-          'Hunting witches...',
-          'Downvoting memes...',
-          'Realigning the Heisenberg compensator...',
-          'Adjusting the matter/antimatter ratio...',
-          'Rotating deflector frequencies...',
-          'Reversing polarity...',
-          'Adjusting field intermix ratio...',
-          'Tuning phase discriminator...',
-          'Synchronizing positronic network...',
-          'Constructing a sufficiently robust spiral decommutator...',
-          'Initiating inverse tachyon beam...'
-        ],
-        loadingMessage: function() {
-          var messages = this.get('messages');
-          return messages[Math.floor(Math.random() * messages.length)];
-        }.property().volatile()
+        needs: 'application'.w(),
+        loadingMessage: Em.computed.alias('controllers.application.loadingMessage')
       });
 
       App.LoginController = Em.Controller.extend({
@@ -919,6 +909,34 @@
       App.ApplicationController = Em.Controller.extend({
         clock: App.clock,
         proxy: '/roxy/',
+        messages: [
+          'Frying bacon...',
+          'Narwal spotting...',
+          'Taking arrow to the knee...',
+          "GGG Webpage: Tells you when it's loading...",
+          'YUNO render yet?',
+          'I heard you like loading screens; so I [loading]',
+          'Whoring karma...',
+          'Reposting cats pictures...',
+          'Reticulating splines...',
+          'Generating puns...',
+          'Hunting witches...',
+          'Downvoting memes...',
+          'Realigning the Heisenberg compensator...',
+          'Adjusting the matter/antimatter ratio...',
+          'Rotating deflector frequencies...',
+          'Reversing polarity...',
+          'Adjusting field intermix ratio...',
+          'Tuning phase discriminator...',
+          'Synchronizing positronic network...',
+          'Constructing a sufficiently robust spiral decommutator...',
+          'Initiating inverse tachyon beam...'
+        ],
+
+        loadingMessage: function() {
+          var messages = this.get('messages');
+          return messages[Math.floor(Math.random() * messages.length)];
+        }.property().volatile(),
 
         subreddits: function() {
           return Em.A();
