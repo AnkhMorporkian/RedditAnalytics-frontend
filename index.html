@@ -167,6 +167,9 @@
                 {{#linkTo "submissions.stream" tagName="li"}}
                   <a href='/new' class='dummy'>/new</a>
                 {{/linkTo}}
+                {{#linkTo "comments.search" tagName="li"}}
+                  <a href='/comments/search' class='dummy'>/comments/search</a>
+                {{/linkTo}}
               </ul>
               <ul class='nav navbar-nav navbar-right'>
                 {{#each headerSubreddits}}
@@ -321,7 +324,6 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="comments/search/query">
-      {{!--
       <div class="input-group">
         <span class="input-group-addon">http://api.rednit.com/search_comments?</span>
         {{input class="form-control" value=newQuery placeholder="Search URL arguments" size="128"}}
@@ -329,8 +331,6 @@
           New Search
         {{/linkTo}}
       </div>
-      --}}
-      <h2>Comment Search Results</h2>
       <ul class='comments'>
         {{#each results itemController="commentsTree"}}
           {{partial "commentsItem"}}
@@ -490,13 +490,16 @@
 
       App.CommentsSearchQueryRoute = Ember.Route.extend({
         model: function(params) {
-          console.log(params);
-          return $.ajax({url: 'http://api.rednit.com/search_comments?' + params.query});
+          return $.ajax({url: 'http://api.rednit.com/search_comments?' + params.query}).then(function(response) {
+            response.query = params.query;
+            return response;
+          });;
         },
         serialize: function(model) {
           if (typeof model === 'string') {
             return {query: model};
           }
+          return model.query;
         }
       });
 
@@ -737,6 +740,15 @@
       App.SubmissionItemController = Ember.ObjectController.extend(App.RedditItemMixin);
 
       App.CommentsTreeController = Ember.ObjectController.extend(App.RedditItemMixin);
+
+      App.CommentsSearchQueryController = Ember.ObjectController.extend({
+        newQuery: function(key, value) {
+          if (arguments.length > 1) {
+            return value;
+          }
+          return this.get('query') || '';
+        }.property('query')
+      });
 
       App.RedditController = Ember.Controller.extend({
         listings: function() {
