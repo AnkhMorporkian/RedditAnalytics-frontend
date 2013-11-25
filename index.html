@@ -152,16 +152,16 @@
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
                 {{#linkTo "reddit" "r/all" tagName="li"}}
-                  <a href='#'>/r/all</a>
+                  <a href='#' class='dummy'>/r/all</a>
                 {{/linkTo}}
                 {{#linkTo "submissions.stream" tagName="li"}}
-                  <a href='#'>/new</a>
+                  <a href='#' class='dummy'>/new</a>
                 {{/linkTo}}
               </ul>
               <ul class='nav navbar-nav navbar-right'>
                 {{#each headerSubreddits}}
                   {{#linkTo "reddit" this tagName="li"}}
-                    <a href='#'>{{unbound this}}</a>
+                    <a href='/{{unbound this}}' class='dummy'>{{unbound this}}</a>
                   {{/linkTo}}
                 {{/each}}
               </ul>
@@ -326,6 +326,19 @@
       </section>
     </script>
 
+    <script type="text/x-handlebars" data-template-name="login">
+      <fieldset>
+        <label>
+          Username
+          {{input type="text" value=username}}
+        </label><label>
+          Password
+          {{input type="password" value=password}}
+        </label>
+        <input type='submit' value='Login' {{action login}}/>
+      </fieldset>
+    </script>
+
     <script type="text/x-handlebars" data-template-name="loading">
       <h1 class='loading'>{{loadingMessage}}</h1>
     </script>
@@ -340,6 +353,8 @@
       App.htmlDecode = function(value){
         return $('<div/>').html(value).text();
       };
+
+      App.roxyPath = '/roxy';
 
       Ember.Handlebars.registerHelper('html', function(html) {
         return new Handlebars.SafeString(html);
@@ -381,6 +396,7 @@
           this.route('tree', {path: '/tree/:comment_id'});
         });
         this.resource('reddit', {path: '/*reddit_path'});
+        this.resource('login');
       });
 
       App.Router.reopen({
@@ -449,6 +465,14 @@
         setupController: function(controller, model) {
           var submissionsStream = this.controllerFor('submissions.stream');
           submissionsStream.set('args', model);
+        }
+      });
+
+      App.ApplicationRoute = Em.Route.extend({
+        actions: {
+          login: function() {
+            this.controllerFor('login').login();
+          }
         }
       });
 
@@ -730,8 +754,41 @@
         }.property().volatile()
       });
 
+      App.LoginController = Em.Controller.extend({
+        needs: 'application'.w(),
+        proxy: Em.computed.alias('controllers.application.proxy'),
+
+        username: '',
+        password: '',
+
+        login: function() {
+          var promise = Em.Deferred.create();
+          $.ajax({
+            url: 'http://roxy.rednit.com',
+            data: {
+              _request: {
+                url:      'https://www.reddit.com/api/login',
+                method:   'POST',
+                headers: {
+                  Authorization: 'OAuth 0123456789abcdef0123456789abcdef'
+                },
+                user:     this.get('username'),
+                passwd:   this.get('password')
+              }
+            },
+            dataType: 'jsonp'
+          }).then(function(response) {
+            debugger;
+            console.log('got response', response);
+            promise.resolve(response);
+          });
+          return promise;
+        }
+      });
+
       App.ApplicationController = Em.Controller.extend({
         clock: App.clock,
+        proxy: '/roxy/',
 
         subreddits: function() {
           return Em.A();
@@ -747,6 +804,22 @@
           window.scrollTo(0, 0);
         }.observes('controller.model').on('didInsertElement')
       });
+
+      window.onclick = function(e) {
+        e = e || window.event;
+        var t = e.target || e.srcElement
+        t = $(t).closest('a').get(0);
+        if (t && t.href && !$(t).hasClass('dummy')){
+          var parts = t.href.split('reddit.com/', 2);
+          if (parts.length <= 1) {
+            parts = t.href.split('rednit.com/', 2);
+          }
+          if (parts.length > 1) {
+            App.Router.router.transitionTo('reddit', parts[1]);
+            return false;
+          }
+        }
+      };
     </script>
   </body>
 </html>
