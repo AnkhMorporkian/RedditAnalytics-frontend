@@ -244,7 +244,7 @@
       </div>
     </script>
 
-    <script type="text/x-handlebars" data-template-name="commentItem">
+    <script type="text/x-handlebars" data-template-name="commentsItem">
       <li class='comment'>
         <div class='meta'>
           by
@@ -271,7 +271,7 @@
         </div>
         <ul class='comments'>
         {{#each childComments itemController="commentsTree"}}
-          {{partial "commentItem"}}
+          {{partial "commentsItem"}}
         {{/each}}
         {{#each moreComments}}
           <li class='more'>and {{unbound count}} replies </li>
@@ -281,9 +281,27 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="comments/tree">
-      <h3>Comment Tree for: {{id}}</h3>
+      <h2>Comment Search Results</h2>
       <ul class='comments'>
-        {{partial "commentItem"}}
+        {{partial "commentsItem"}}
+      </ul>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="comments/search/query">
+      {{!--
+      <div class="input-group">
+        <span class="input-group-addon">http://api.rednit.com/search_comments?</span>
+        {{input class="form-control" value=newQuery placeholder="Search URL arguments" size="128"}}
+        {{#linkTo "comments.search.query" newQuery class='input-group-addon'}}
+          New Search
+        {{/linkTo}}
+      </div>
+      --}}
+      <h2>Comment Search Results</h2>
+      <ul class='comments'>
+        {{#each results itemController="commentsTree"}}
+          {{partial "commentsItem"}}
+        {{/each}}
       </ul>
     </script>
 
@@ -305,7 +323,7 @@
 
         <ul class='comments'>
         {{#each comments itemController="commentsTree"}}
-          {{partial "commentItem"}}
+          {{partial "commentsItem"}}
         {{/each}}
         </ul>
 
@@ -394,6 +412,9 @@
         });
         this.resource('comments', function() {
           this.route('tree', {path: '/tree/:comment_id'});
+          this.resource('comments.search', {path: '/search'}, function() {
+            this.route('query', {path: '/*query'});
+          });
         });
         this.resource('reddit', {path: '/*reddit_path'});
         this.resource('login');
@@ -424,6 +445,24 @@
           return {
             comment_id: model.id
           };
+        }
+      });
+
+      App.CommentsSearchIndexRoute = Ember.Route.extend({
+        redirect: function() {
+          this.transitionTo('comments.search.query', '');
+        }
+      });
+
+      App.CommentsSearchQueryRoute = Ember.Route.extend({
+        model: function(params) {
+          console.log(params);
+          return $.ajax({url: 'http://api.rednit.com/search_comments?' + params.query});
+        },
+        serialize: function(model) {
+          if (typeof model === 'string') {
+            return {query: model};
+          }
         }
       });
 
@@ -554,7 +593,14 @@
         }.property('model.body_html'),
 
         permalink: function() {
-          var permalink = this.get('content.permalink');
+          var permalink = this.get('content.permalink'),
+              parts = [];
+          if (permalink) {
+            parts = permalink.split('reddit.com/', 2);
+            if (parts.length > 1) {
+              permalink = '/' + parts[1];
+            }
+          }
           if (permalink) {return permalink;}
           var linkId = this.get('link_id'),
               id = this.get('id'),
@@ -809,7 +855,7 @@
         e = e || window.event;
         var t = e.target || e.srcElement
         t = $(t).closest('a').get(0);
-        if (t && t.href && !$(t).hasClass('dummy')){
+        if (t && t.href && !$(t).hasClass('dummy') && !$(t).hasClass('ember-view')){
           var parts = t.href.split('reddit.com/', 2);
           if (parts.length <= 1) {
             parts = t.href.split('rednit.com/', 2);
