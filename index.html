@@ -6,12 +6,25 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
     <style type='text/css'>
+      html, body {
+        height: 100%;
+      }
       .navbar-inverse {
         background: url('/images/white-linen.jpg');
         box-shadow: 0px 5px 5px #888888;
       }
       .navbar-inverse .navbar-inner {
         background-image: linear-gradient(to bottom,rgba(141, 0, 0, 0.62) 0,rgba(184, 14, 14, 0.35) 100%);
+      }
+      #footer {
+        /*
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        */
+        box-shadow: 0px -5px 5px #888888;
+        margin-bottom: 0;
       }
 
       .navbar-inverse .navbar-nav>li>a,
@@ -107,16 +120,18 @@
       body {
         background: url('/images/white-linen.jpg');
       }
-      article.container {
+      article.main {
         background-color: rgba(255, 255, 255, 0.5);
-        padding-top: 50px;
-        padding-bottom: 25px;
+        padding-top: 60px;
+        padding-bottom: 60px;
       }
 
+      /*
       article.container,
       .navbar .container {
         width: 100%;
       }
+      */
 
       ul.comments {
         list-style-type: none;
@@ -177,8 +192,7 @@
     <script type="text/x-handlebars">
       <div class='navbar navbar-inverse navbar-fixed-top'>
         <div class='navbar-inner'>
-          <div class='container'>
-            {{#linkTo "reddit" "r/redditanalytics" class="navbar-brand"}}rednit{{/linkTo}}
+            {{#linkTo "about" class="navbar-brand"}}rednit{{/linkTo}}
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
                 {{#linkTo "reddit" "r/all" tagName="li"}}
@@ -199,10 +213,56 @@
                 {{/each}}
               </ul>
             </div>
+        </div>
+      </div>
+      <article class='main'>{{outlet}}</article>
+      <div id="footer" class="navbar navbar-inverse">
+        <div class='navbar-inner'>
+          <div class='navbar-collapse collapse'>
+            <ul class='nav navbar-nav navbar-left'>
+              <li>
+                <a href='http://reddit.com' class='dummy'>Powered by reddit.com</a>
+              </li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right'>
+              {{#linkTo "about" class='veronica-version' tagName="li"}}
+                <a href='/about' class='dummy'>Veronica <span>v0.0.1 WIP</span></a>
+              {{/linkTo}}
+            </ul>
           </div>
         </div>
       </div>
-      <article class='container'>{{outlet}}</article>
+    </div>
+    </script>
+    <script type="text/x-handlebars" data-template-name="about">
+      <article class='about container'>
+        <h2>About rednit</h2>
+        <div class='well'>
+          <p>rednit is a project created by redditors to provide software tools and services that improve the reddit experience</p>
+          <p>Formerly known as {{#linkTo 'reddit' 'r/redditanalytics'}}Reddit Analytics{{/linkTo}}, rednit focuses on providing search and streaming APIs in addition to those already provided by reddit.</p>
+        </div>
+
+        <h3>Who?</h3>
+        <div class='well'>
+          <h4>{{#linkTo 'reddit' 'user/Stuck_In_the_Matrix'}}/u/Stuck_In_the_Matrix{{/linkTo}}</h4>
+          <h4>{{#linkTo 'reddit' 'user/AnkhMorporkian'}}/u/AnkhMorporkian{{/linkTo}}</h4>
+          <h4>{{#linkTo 'reddit' 'user/go1dfish'}}/u/go1dfish{{/linkTo}}</h4>
+        </div>
+
+        <h3>What?</h3>
+        <div class='well'>
+          <h4>Comment &amp; Submission Search API</h4>
+          <p>rednit's comment search API provides the previously unheard of ability to search comments on reddit.
+        </div><div class='well'>
+          <h4>Comment &amp; Submission Stream API</h4>
+          <p>Does your bot need to see posts or comments on reddit as they happen?  Don't want to poll?  Our streams are just what you need.</p>
+        </div><div class='well'>
+          <h4>Veronica Reddit Client</h4>
+          <p>Veronica is the web application powering what you see here.</p>
+          <p>Combining reddit's native API's with our own search and stream APIs, Veronica is able to provide a reddit browsing experience second to none.</p>
+          <p>Veronica is an open-source <a href='http://emberjs.com' target='ember'>Ember.js</a> application and is <a href='http://github.com/AnkhMorporkian/RedditAnalytics-frontend' target='github'>available on github</a>, or simply <em>view source</em> in your browser</p>
+        </div>
+      </article>
     </script>
     <script type="text/x-handlebars" data-template-name="submissions/stream">
       <div class="input-group">
@@ -226,7 +286,6 @@
       {{/each}}
       </div>
     </script>
-
     <script type="text/x-handlebars" data-template-name="submissionItem">
       <div {{bind-attr class='stickied :submission :media'}}>
           <div class='pull-left votes'>
@@ -236,13 +295,15 @@
           </div>
         {{#if thumbnail}}
           <div class='pull-left'>
-            <a href="{{unbound url}}" target="reddit">
+            <a href="{{unbound linkUrl}}" target="reddit">
               <img class='media-object' src="{{unbound thumbnail}}"/>
             </a>
           </div>
         {{/if}}
         <div class='media-body'>
-          <span class='media-heading'><a href="{{unbound url}}" target="reddit">{{{unbound title}}}</a></span>
+          <span class='media-heading'>
+            <a href="{{unbound linkUrl}}" target="reddit">{{{unbound title}}}</a>
+          </span>
           {{#linkTo 'reddit' domainPath class='domain'}}({{unbound domain}}){{/linkTo}}
           {{#if link_flair_text}}
             <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
@@ -420,24 +481,24 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.2.0-beta.4/ember.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.7.2/URI.min.js"></script>
     <script type="text/javascript">
-      var App = Ember.Application.create();
+      var Veronica = Ember.Application.create();
 
-      App.htmlDecode = function(value){
+      Veronica.htmlDecode = function(value){
         return $('<div/>').html(value).text();
       };
 
-      App.roxyPath = '/roxy';
+      Veronica.roxyPath = '/roxy';
 
       Ember.Handlebars.registerHelper('html', function(html) {
         return new Handlebars.SafeString(html);
       });
 
-      App.shuffle = function(v){
+      Veronica.shuffle = function(v){
         for(var j, x, i = v.length; i; j = parseInt(Math.random() * i), x = v[--i], v[i] = v[j], v[j] = x);
         return v;
       };
 
-      App.Clock = Ember.Object.extend({
+      Veronica.Clock = Ember.Object.extend({
         second: null,
         minute: null,
         hour:   null,
@@ -458,9 +519,9 @@
           Em.run.later(this, this.tick, 1000);
         }
       });
-      App.clock = App.Clock.create();
+      Veronica.clock = Veronica.Clock.create();
 
-      App.Router.map(function() {
+      Veronica.Router.map(function() {
         this.resource('submissions.stream', {path: '/new'}, function() {
           this.route('custom', {path: ':args'});
         });
@@ -470,27 +531,28 @@
             this.route('query', {path: '/*query'});
           });
         });
+        this.resource('about');
         this.resource('reddit', {path: '/*reddit_path'});
         this.resource('login');
       });
 
-      App.Router.reopen({
+      Veronica.Router.reopen({
         location: 'history'
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      Veronica.IndexRoute = Ember.Route.extend({
         redirect: function() {
           this.transitionTo('reddit', 'r/all');
         }
       });
 
-      App.SubmissionsStreamIndexRoute = Ember.Route.extend({
+      Veronica.SubmissionsStreamIndexRoute = Ember.Route.extend({
         redirect: function() {
           this.transitionTo('submissions.stream.custom', '');
         }
       });
 
-      App.CommentsTreeRoute = Ember.Route.extend({
+      Veronica.CommentsTreeRoute = Ember.Route.extend({
         model: function(params) {
           var url = "http://api.rednit.com/comment_tree?id=";
           return $.ajax({url: url + params.comment_id});
@@ -502,13 +564,13 @@
         }
       });
 
-      App.CommentsSearchIndexRoute = Ember.Route.extend({
+      Veronica.CommentsSearchIndexRoute = Ember.Route.extend({
         redirect: function() {
           this.transitionTo('comments.search.query', '');
         }
       });
 
-      App.CommentsSearchQueryRoute = Ember.Route.extend({
+      Veronica.CommentsSearchQueryRoute = Ember.Route.extend({
         model: function(params) {
           return $.ajax({url: 'http://api.rednit.com/search_comments?' + params.query}).then(function(response) {
             response.query = params.query;
@@ -523,7 +585,7 @@
         }
       });
 
-      App.RedditRoute = Ember.Route.extend({
+      Veronica.RedditRoute = Ember.Route.extend({
         model: function(params) {
           var url = "http://reddit.com/",
               redditPath = params.reddit_path,
@@ -550,7 +612,7 @@
         }
       });
 
-      App.SubmissionsStreamCustomRoute = Ember.Route.extend({
+      Veronica.SubmissionsStreamCustomRoute = Ember.Route.extend({
         model: function(params) {
           return params.args || '';
         },
@@ -564,7 +626,7 @@
         }
       });
 
-      App.ApplicationRoute = Em.Route.extend({
+      Veronica.ApplicationRoute = Em.Route.extend({
         actions: {
           login: function() {
             this.controllerFor('login').login();
@@ -572,7 +634,7 @@
         }
       });
 
-      App.SubmissionsStreamController = Ember.Controller.extend({
+      Veronica.SubmissionsStreamController = Ember.Controller.extend({
         needs: 'application'.w(),
         loadingMessage: Em.computed.alias('controllers.application.loadingMessage'),
 
@@ -617,12 +679,12 @@
         }.observes('args').on('init')
       });
 
-      App.RedditItemMixin = Ember.Mixin.create({
+      Veronica.RedditItemMixin = Ember.Mixin.create({
         needs: 'application'.w(),
         subreddits: Em.computed.alias('controllers.application.subreddits'),
 
         redditDomain: 'http://reddit.com',
-        clock: App.clock,
+        clock: Veronica.clock,
 
         subredditDidChange: function() {
           var subreddit = this.get('subreddit');
@@ -639,6 +701,17 @@
           }
           return url;
         }.property('model.url'),
+
+        linkUrl: function() {
+          var url = this.get('url'),
+              permalink = this.get('permalink'),
+              imageUrl = this.get('imageUrl'),
+              youtubeId = this.get('youtubeId');
+          if (imageUrl || youtubeId) {
+            return permalink;
+          }
+          return url;
+        }.property('url', 'imageUrl', 'youtubeId', 'permalink'),
 
         imageUrl: function() {
           var url = this.get('url'),
@@ -669,13 +742,13 @@
         selfText: function() {
           var self_text = this.get('model.selftext_html');
           if (self_text) {
-            return App.htmlDecode(self_text);
+            return Veronica.htmlDecode(self_text);
           }
         }.property('model.selftext_html'),
 
         body: function() {
           var body = this.get('model.body_html') || this.get('model.body');
-          return App.htmlDecode(body) || '';
+          return Veronica.htmlDecode(body) || '';
         }.property('model.body_html'),
 
         permalink: function() {
@@ -760,11 +833,11 @@
         }.property('model.created_utc', 'clock.minute')
       });
 
-      App.SubmissionItemController = Ember.ObjectController.extend(App.RedditItemMixin);
+      Veronica.SubmissionItemController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
 
-      App.CommentsTreeController = Ember.ObjectController.extend(App.RedditItemMixin);
+      Veronica.CommentsTreeController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
 
-      App.CommentsSearchQueryController = Ember.ObjectController.extend({
+      Veronica.CommentsSearchQueryController = Ember.ObjectController.extend({
         newQuery: function(key, value) {
           if (arguments.length > 1) {
             return value;
@@ -773,7 +846,7 @@
         }.property('query')
       });
 
-      App.RedditController = Ember.Controller.extend({
+      Veronica.RedditController = Ember.Controller.extend({
         listings: function() {
           var model = this.get('model');
           if (Em.isArray(model)) {
@@ -819,7 +892,7 @@
 
         sidebarHtml: function() {
           var html = this.get('sidebar.description_html');
-          if (html) { return App.htmlDecode(html); }
+          if (html) { return Veronica.htmlDecode(html); }
         }.property('sidebar.description_html'),
 
         comments: function() {
@@ -869,12 +942,12 @@
         }.property('hasMultiplePosts', 'firstPostId')
       });
 
-      App.LoadingController = Em.Controller.extend({
+      Veronica.LoadingController = Em.Controller.extend({
         needs: 'application'.w(),
         loadingMessage: Em.computed.alias('controllers.application.loadingMessage')
       });
 
-      App.LoginController = Em.Controller.extend({
+      Veronica.LoginController = Em.Controller.extend({
         needs: 'application'.w(),
         proxy: Em.computed.alias('controllers.application.proxy'),
 
@@ -906,8 +979,8 @@
         }
       });
 
-      App.ApplicationController = Em.Controller.extend({
-        clock: App.clock,
+      Veronica.ApplicationController = Em.Controller.extend({
+        clock: Veronica.clock,
         proxy: '/roxy/',
         messages: [
           'Frying bacon...',
@@ -943,11 +1016,11 @@
         }.property(),
 
         headerSubreddits: function() {
-          return App.shuffle(this.get('subreddits')).slice(0, 5);
+          return Veronica.shuffle(this.get('subreddits')).slice(0, 5);
         }.property('subreddits.@each', 'clock.minute')
       });
 
-      App.RedditView = Em.View.extend({
+      Veronica.RedditView = Em.View.extend({
         scrollToTop: function() {
           window.scrollTo(0, 0);
         }.observes('controller.model').on('didInsertElement')
@@ -963,7 +1036,7 @@
             parts = t.href.split('rednit.com/', 2);
           }
           if (parts.length > 1) {
-            App.Router.router.transitionTo('reddit', parts[1]);
+            Veronica.Router.router.transitionTo('reddit', parts[1]);
             return false;
           }
         }
