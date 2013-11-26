@@ -421,11 +421,27 @@
 
     <script type="text/x-handlebars" data-template-name="reddit">
       <section {{bindAttr class='hasMultiplePosts :reddit'}}>
-        {{#if sidebarHtml}}
+        {{#if sidebar.subredditPath}}
+          <ul class='nav nav-tabs'>
+            <li><a href='/{{unbound sidebar.subredditPath}}/'>Hot</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/new'>New</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/rising'>Rising</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/controversial'>Controversial</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/top'>Top</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/gilded'>Gilded</a></li>
+          </ul>
           <section class='sidebar well pull-right'>
             <h1 class='subreddit-title'>
               {{#linkTo 'reddit' sidebar.subredditPath}}/r/{{sidebar.display_name}}{{/linkTo}}
             </h1>
+            <span class='subscribers'>
+              <span class='number'>{{sidebar.subscribers}}</span>
+              <span class='word'>readers</span>
+            </span>
+            <p class='users-online' title="logged-in users viewing this subreddit in the past 15 minutes">
+              <span class='number'>{{sidebar.accounts_active}}</span>
+              <span class='word'>users here now</span>
+            </p>
             {{{sidebarHtml}}}
           </section>
         {{/if}}
