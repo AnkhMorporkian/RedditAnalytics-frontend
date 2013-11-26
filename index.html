@@ -45,7 +45,8 @@
       }
 
       section.sidebar {
-        margin-top: 1em;
+        margin-top: 0;
+        margin-left: 1em;
         color: white;
         width: 300px;
         border-radius: 1em;
@@ -428,6 +429,7 @@
             <li><a href='/{{unbound sidebar.subredditPath}}/rising'>Rising</a></li>
             <li><a href='/{{unbound sidebar.subredditPath}}/controversial'>Controversial</a></li>
             <li><a href='/{{unbound sidebar.subredditPath}}/top'>Top</a></li>
+            <li><a href='/{{unbound sidebar.subredditPath}}/comments'>Comments</a></li>
             <li><a href='/{{unbound sidebar.subredditPath}}/gilded'>Gilded</a></li>
           </ul>
           <section class='sidebar well pull-right'>
@@ -888,7 +890,8 @@
         }.property('listingsChildren'),
 
         subreddits: function() {
-          return this.get('posts').getEach('subreddit').uniq();
+          var postSubs = this.get('posts').getEach('subreddit');
+          return postSubs.concat(this.get('comments').getEach('subreddit')).uniq();
         }.property('posts'),
 
         sidebar: function() {
