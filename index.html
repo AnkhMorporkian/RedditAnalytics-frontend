@@ -342,12 +342,12 @@
               {{/unless}}
             {{/if}}
             {{#if youtubeId}}
-              {{#unless parentController.hasMultiplePosts}}
+              {{#if parentController.isSinglePost}}
               <section class='well submission-video'>
                 <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{unbound youtubeId}}" allowfullscreen frameborder="0">
 </iframe>
               </section>
-              {{/unless}}
+              {{/if}}
             {{/if}}
             {{#if over_18}}
               <span class="label label-danger nsfw">NSFW</span>
