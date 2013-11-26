@@ -519,6 +519,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.2.0-beta.4/ember.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.7.2/URI.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.min.js"></script>
     <script type="text/javascript">
       var Veronica = Ember.Application.create();
 
@@ -786,7 +787,14 @@
         }.property('model.selftext_html'),
 
         body: function() {
-          var body = this.get('model.body_html') || this.get('model.body');
+          var body = this.get('model.body_html');
+          if (!body) {
+            body = this.get('model.body');
+            if (body) {
+              var converter = new Markdown.Converter();
+              return converter.makeHtml(body);
+            }
+          }
           return Veronica.htmlDecode(body) || '';
         }.property('model.body_html'),
 
