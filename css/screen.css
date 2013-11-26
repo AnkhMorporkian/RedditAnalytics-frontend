@@ -1,0 +1,197 @@
+html, body {
+  height: 100%;
+}
+.navbar-inverse {
+  background: url('/images/white-linen.jpg');
+  box-shadow: 0px 5px 5px #888888;
+  max-height: 50px;
+  overflow: hidden;
+}
+.navbar-inverse .navbar-inner {
+  background-image: linear-gradient(to bottom,rgba(141, 0, 0, 0.62) 0,rgba(184, 14, 14, 0.35) 100%);
+}
+#footer {
+  /*
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  */
+  clear: both;
+  box-shadow: 0px -5px 5px #888888;
+  margin-bottom: 0;
+}
+
+.navbar-inverse .navbar-nav>li>a,
+.navbar-inverse .navbar-brand {
+  color: white;
+}
+
+@-webkit-keyframes pulse {
+    0% {background-color: rgba(255, 255, 255, 0.1);}
+    100% {background-color: rgba(255, 0, 0, 0.1);}
+}
+
+.loading {
+  -webkit-animation: pulse 1s infinite alternate;
+  text-align: center;
+  padding-top: 3em;
+  padding-bottom: 3em;
+}
+
+section.sidebar {
+  margin-top: 0;
+  margin-left: 1em;
+  color: white;
+  width: 300px;
+  border-radius: 1em;
+  background-image: none;
+  background-color: rgba(77, 0, 9, 0.54);
+  box-shadow: -5px 5px 5px #888888;
+}
+
+.sidebar p,
+.sidebar blockquote,
+.sidebar table {
+  font-size: 100%;
+  color: white;
+}
+
+.sidebar ul {
+  padding-left: 1.2em;
+}
+
+.sidebar a {
+  color: #DDD
+}
+
+.sidebar h1 {
+  font-size: 140%;
+}
+.sidebar h2 {
+  font-size: 130%;
+}
+.sidebar h3 {
+  font-size: 120%;
+}
+.sidebar h4 {
+  font-size: 110%;
+}
+.sidebar h5 {
+  font-size: 105%;
+}
+.sidebar h6 {
+  font-size: 100%;
+}
+
+.ups, .downs, .score {
+  text-align: right;
+  width: 4em;
+}
+.ups {
+  color: green;
+}
+.downs {
+  color: red;
+}
+.submission .score {
+  font-weight: bold;
+}
+.ups:before {
+  content: '+';
+}
+.downs:before {
+  content: '-';
+}
+.submission-list > .submission {
+  padding: 1em;
+  margin: 0 0 0 0;
+}
+.well,
+.nav-tabs,
+.submission-list > .submission:nth-child(even) {
+  background-image: none;
+  background-color: #EEEEEE;
+  background-color: rgba(200, 200, 200, 0.3);
+}
+body {
+  background: url('/images/white-linen.jpg');
+}
+.veronica {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+article.main {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+/*
+article.container,
+.navbar .container {
+  width: 100%;
+}
+*/
+
+ul.comments {
+  list-style-type: none;
+  padding-left: 1em;
+}
+
+ul.comments li.comment {
+  border-left: 1px solid #eeeeee;
+  padding-left: 1em;
+}
+
+.comment .meta,
+.comment .body,
+.comment .buttons {
+}
+.comment .buttons {
+  margin-top: -0.5em;
+  padding-bottom: 1em;
+}
+
+.comment .body {
+  max-width: 60em;
+  overflow: auto;
+}
+
+.submission .domain,
+.comment .meta {
+  color: #666;
+}
+
+.comment .meta a {
+  font-weight: bold;
+}
+
+a {
+  color: #369;
+  color: #8D0000;
+}
+
+.submission .media-heading {
+  font-size: 120%;
+}
+
+.stickied .media-heading a {
+  font-weight: bold;
+  color: green;
+}
+
+.comment .buttons a {
+  color: #666;
+  font-weight: bold;
+  margin-top: 0;
+  padding-top: 1em;
+  margin-right: 0.5em;
+}
+
+.has-multiple-posts .selftext {
+  display: none;
+}
+.submission-image img {
+  max-width: 100%;
+  max-height: 800px;
+}
+
