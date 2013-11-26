@@ -457,6 +457,16 @@
             </p>
             {{{sidebarHtml}}}
           </section>
+        {{else}}
+          {{#if user.data}}
+            {{#with user.data}}
+            <section class='sidebar user well pull-right'>
+              <h1>{{name}}</h1>
+              <span class='karma'>{{link_karma}}</span> link karma<br/>
+              <span class='karma comment-karma'>>{{comment_karma}}</span> comment karma
+            </section>
+            {{/with}}
+          {{/if}}
         {{/if}}
         <div class='submission-list'>
         {{#each posts itemController="submissionItem"}}
@@ -905,6 +915,11 @@
           return postSubs.concat(this.get('comments').getEach('subreddit')).uniq();
         }.property('posts'),
 
+        users: function() {
+          var postSubs = this.get('posts').getEach('author');
+          return postSubs.concat(this.get('comments').getEach('author')).uniq();
+        }.property('posts'),
+
         sidebar: function() {
           var subreddits = this.get('subreddits'),
               sidebar = Em.Object.create();
@@ -919,6 +934,21 @@
             return sidebar;
           }
         }.property('subreddits'),
+
+        user: function() {
+          var users = this.get('users'),
+              user = Em.Object.create();
+          if (this.get('isSingleUser')) {
+            $.ajax({
+              url: 'http://reddit.com/user/' + users.get('firstObject') + '/about.json?jsonp=?',
+              dataType: 'jsonp'
+            }).then(function(response) {
+              user.set('userPath', 'user/' + users.get('firstObject'));
+              user.setProperties(response);
+            });
+            return user;
+          }
+        }.property('users'),
 
         sidebarHtml: function() {
           var html = this.get('sidebar.description_html');
@@ -937,6 +967,10 @@
         isSinglePost: function() {
           return this.get('posts.length') === 1;
         }.property('posts.length'),
+
+        isSingleUser: function() {
+          return this.get('users.length') === 1;
+        }.property('users.length'),
 
         lastPostId: Em.computed.alias('posts.lastObject.id'),
         firstPostId: Em.computed.alias('posts.firstObject.id'),
