@@ -292,7 +292,7 @@
         <div class='waiting media'>
           <div class='media-body'>
             <h1 class='loading'>
-              {{loadingMessage}}
+              {{{loadingMessage}}}
             </h1>
           </div>
         </div>
@@ -518,7 +518,7 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="loading">
-      <h1 class='loading'>{{loadingMessage}}</h1>
+      <h1 class='loading'>{{{loadingMessage}}}</h1>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -1073,33 +1073,48 @@
         clock: Veronica.clock,
         proxy: '/roxy/',
         messages: [
-          'Frying bacon...',
-          'Narwal spotting...',
-          'Taking arrow to the knee...',
-          "GGG Webpage: Tells you when it's loading...",
+          'Frying bacon',
+          'Narwal spotting',
+          'Taking arrow to the knee',
+          "GGG Webpage: Tells you when it's loading",
           'YUNO render yet?',
-          'I heard you like loading screens; so I [loading]',
-          'Whoring karma...',
-          'Reposting cat pictures...',
-          'Reticulating splines...',
-          'Generating puns...',
-          'Hunting witches...',
-          'Downvoting memes...',
-          'Realigning the Heisenberg compensator...',
-          'Adjusting the matter/antimatter ratio...',
-          'Rotating deflector frequencies...',
-          'Reversing polarity...',
-          'Adjusting field intermix ratio...',
-          'Tuning phase discriminator...',
-          'Synchronizing positronic network...',
-          'Constructing a sufficiently robust spiral decommutator...',
-          'Initiating inverse tachyon beam...'
+          'I heard you like loading screens; so I put a loading message in your loading message so you can load while you load: [loading]',
+          'Whoring karma',
+          'Reposting cat pictures',
+          'Reticulating splines',
+          'Threading puns',
+          'Hunting witches',
+          'Downvoting memes',
+          'Realigning the Heisenberg compensator',
+          'Adjusting the matter/antimatter ratio',
+          'Rotating deflector frequencies',
+          'Reversing polarity',
+          'Adjusting field intermix ratio',
+          'Tuning phase discriminator',
+          'Synchronizing positronic network',
+          'Constructing a sufficiently robust spiral decommutator',
+          'Initiating inverse tachyon beam',
+          'Manning battle stations',
+          'Feeding Mister Splashy Pants',
+          'Abducting snoo',
+          'Rick rolling',
+          'Don\'t load me bro',
+          'Test loading message, please ignore',
+          'Ramparting threads',
+          'Reading reddiquette',
+          'Invoking godwin',
+          'Starving trolls',
+          'HA HA<br>I\'m using the reddits'
         ],
 
         loadingMessage: function() {
           var messages = this.get('messages');
-          return messages[Math.floor(Math.random() * messages.length)];
-        }.property('clock.minute').volatile(),
+          return messages[Math.floor(Math.random() * messages.length)] + '...';
+        }.property().volatile(),
+
+        changeLoadingMessage: function() {
+          this.notifyPropertyChange('loadingMessage');
+        }.observes('clock.second'),
 
         subreddits: function() {
           return Em.A();
