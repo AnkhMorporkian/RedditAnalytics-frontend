@@ -402,7 +402,7 @@
 
       Veronica.SubmissionsStreamIndexRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('submissions.stream.custom', '');
+          this.transitionTo('submissions.stream.custom', 'subreddit=&author=&domain=&nsfw=&self_post=&terms=');
         }
       });
 
@@ -420,7 +420,7 @@
 
       Veronica.CommentsSearchIndexRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('comments.search.query', 'sort=date&terms=');
+          this.transitionTo('comments.search.query', 'sort=date&limit=50&subreddit=&author=&terms=');
         }
       });
 
