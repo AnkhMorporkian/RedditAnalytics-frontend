@@ -732,6 +732,8 @@
         redditDomain: 'http://reddit.com',
         clock: Veronica.clock,
 
+        isSinglePost: Em.computed.alias('parentController.isSinglePost'),
+
         subredditDidChange: function() {
           var subreddit = this.get('subreddit');
           if (subreddit) {
