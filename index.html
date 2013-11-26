@@ -148,6 +148,7 @@
       ul.comments li.comment {
         border-left: 1px solid #eeeeee;
         padding-left: 1em;
+        margin-bottom: 1em;
       }
 
       .comment .meta,
@@ -375,6 +376,13 @@
 
     <script type="text/x-handlebars" data-template-name="commentsItem">
       <li class='comment'>
+        {{#unless isSinglePost}}
+          <a class="link-title" href="{{unbound permalink}}">{{unbound link_title}}</a>
+          {{#if link_author}}
+          by <a class="link-author" href="/user/{{unbound link_author}}">{{unbound link_author}}</a>
+          {{/if}}
+          in <a class="subreddit" href="/r/{{unbound subreddit}}">{{unbound subreddit}}</a>
+        {{/unless}}
         <div class='meta'>
           by
           {{#linkTo 'reddit' authorPath class="author"}}{{unbound author}}
@@ -392,9 +400,7 @@
             <span class='gilded glyphicon glyphicon-star-empty label label-warning'>{{gilded}}</span>
           {{/if}}
         </div>
-        <section class='body'>
-          {{{unbound body}}}
-        </section><div class='buttons'>
+        <section class='body'>{{{unbound body}}}</section><div class='buttons'>
           {{#linkTo 'reddit' permalinkPath class='permalink'}}permalink{{/linkTo}}
           {{#linkTo 'comments.tree' id class="comment-tree-search"}}search{{/linkTo}}
         </div>
@@ -971,6 +977,10 @@
         hasMultiplePosts: function() {
           return this.get('posts.length') > 1;
         }.property('posts.length'),
+
+        isSingleSubreddit: function() {
+          return this.get('subreddits.length') === 1;
+        }.property('subreddits.length'),
 
         isSinglePost: function() {
           return this.get('posts.length') === 1;
