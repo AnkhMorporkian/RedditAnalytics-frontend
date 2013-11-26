@@ -889,7 +889,12 @@
         }.property('children'),
 
         created: function() {
-          return moment.utc(this.get('model.created_utc') * 1000).fromNow();
+          var now = moment(),
+              created = moment.utc(this.get('model.created_utc') * 1000);
+          if (created > now) {
+            created = now;
+          }
+          return created.fromNow();
         }.property('model.created_utc', 'clock.minute')
       });
 
