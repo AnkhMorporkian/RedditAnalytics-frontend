@@ -286,7 +286,7 @@
         {{/linkTo}}
       </div>
       <div class='submission-list'>
-      {{#each submissions itemController="submissionItem"}}
+      {{#each submissions itemController="redditItem"}}
         {{partial "submissionItem"}}
       {{else}}
         <div class='waiting media'>
@@ -385,11 +385,12 @@
         {{/unless}}
         <div class='meta'>
           by
-          {{#linkTo 'reddit' authorPath class="author"}}{{unbound author}}
+          <a href='/user/{{unbound author}}' class='author'>
+            {{unbound author}}
             {{#if author_flair_text}}
               <span class='label label-info link-flair'>{{unbound author_flair_text}}</span>
             {{/if}}
-          {{/linkTo}}
+          </a>
           {{#if score_hidden}}
             <span class='score-hidden'>[score hidden]</span>
           {{else}}
@@ -397,15 +398,15 @@
           {{/if}}
           <span class='date'>{{unbound created}}</span>
           {{#if gilded}}
-            <span class='gilded glyphicon glyphicon-star-empty label label-warning'>{{gilded}}</span>
+            <span class='gilded glyphicon glyphicon-star-empty label label-warning'>{{unbound gilded}}</span>
           {{/if}}
         </div>
         <section class='body'>{{{unbound body}}}</section><div class='buttons'>
-          {{#linkTo 'reddit' permalinkPath class='permalink'}}permalink{{/linkTo}}
-          {{#linkTo 'comments.tree' id class="comment-tree-search"}}search{{/linkTo}}
+          <a href='{{unbound permalink}}' class='permalink'>permalink</a>
+          {{#linkTo 'comments.tree' id class='comment-tree-search'}}search{{/linkTo}}
         </div>
         <ul class='comments'>
-        {{#each childComments itemController="commentsTree"}}
+        {{#each childComments itemController="redditItem"}}
           {{partial "commentsItem"}}
         {{/each}}
         {{#each moreComments}}
@@ -431,7 +432,7 @@
         {{/linkTo}}
       </div>
       <ul class='comments'>
-        {{#each results itemController="commentsTree"}}
+        {{#each results itemController="redditItem"}}
           {{partial "commentsItem"}}
         {{/each}}
       </ul>
@@ -469,22 +470,22 @@
             <section class='sidebar user well pull-right'>
               <h1>{{name}}</h1>
               <span class='karma'>{{link_karma}}</span> link karma<br/>
-              <span class='karma comment-karma'>>{{comment_karma}}</span> comment karma
+              <span class='karma comment-karma'>{{comment_karma}}</span> comment karma
             </section>
             {{/with}}
           {{/if}}
         {{/if}}
         <div class='submission-list'>
-        {{#each posts itemController="submissionItem"}}
-          {{partial "submissionItem"}}
+        {{#each items itemController="redditItem"}}
+          {{#if body}}
+            <ul class='comments'>
+            {{partial "commentsItem"}}
+            </ul>
+          {{else}}
+            {{partial "submissionItem"}}
+          {{/if}}
         {{/each}}
         </div>
-
-        <ul class='comments'>
-        {{#each comments itemController="commentsTree"}}
-          {{partial "commentsItem"}}
-        {{/each}}
-        </ul>
 
         <div class='page-nav'>
           {{#if hasMultiplePosts}}
@@ -742,8 +743,9 @@
         }.observes('subreddit').on('init'),
 
         url: function() {
-          var url = this.get('model.url'),
-              parts = url.split('reddit.com/', 2);
+          var url = this.get('model.url');
+          if (!url) {return;}
+          var parts = url.split('reddit.com/', 2);
           if (parts.length > 1) {
             return '/' + parts[1];
           }
@@ -888,9 +890,9 @@
         }.property('model.created_utc', 'clock.minute')
       });
 
-      Veronica.SubmissionItemController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
+      Veronica.RedditItemController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
 
-      Veronica.CommentsTreeController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
+      Veronica.CommentsTreeController = Veronica.RedditItemController.extend();;
 
       Veronica.CommentsSearchQueryController = Ember.ObjectController.extend({
         newQuery: function(key, value) {
@@ -921,6 +923,10 @@
           })
           return children;
         }.property('listings'),
+
+        items: function() {
+          return this.get('listingsChildren').getEach('data');
+        }.property('listingsChildren'),
 
         posts: function() {
           return this.get('listingsChildren').filterProperty('kind', 't3').map(function(item) {return item.data});
@@ -1074,7 +1080,7 @@
           'YUNO render yet?',
           'I heard you like loading screens; so I [loading]',
           'Whoring karma...',
-          'Reposting cats pictures...',
+          'Reposting cat pictures...',
           'Reticulating splines...',
           'Generating puns...',
           'Hunting witches...',
