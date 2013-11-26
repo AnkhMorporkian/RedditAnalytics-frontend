@@ -616,7 +616,7 @@
 
       Veronica.CommentsSearchIndexRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('comments.search.query', '');
+          this.transitionTo('comments.search.query', 'sort=date&terms=');
         }
       });
 
@@ -1100,14 +1100,17 @@
           'Manning battle stations',
           'Feeding Mister Splashy Pants',
           'Abducting snoo',
-          'Rick rolling',
+          'Rick rolling Psy',
           'Don\'t load me bro',
           'Test loading message, please ignore',
           'Ramparting threads',
           'Reading reddiquette',
-          'Invoking godwin',
+          'Invoking Godwin',
           'Starving trolls',
-          'HA HA<br>I\'m using the reddits'
+          'HA HA<br>I\'m using the reddits',
+          'Oppan Gangnam style',
+          'You Only Load Once #YOLO',
+          'FWP: my page <em>still</em> hasn\'t loaded'
         ],
 
         loadingMessage: function() {
