@@ -12,6 +12,8 @@
       .navbar-inverse {
         background: url('/images/white-linen.jpg');
         box-shadow: 0px 5px 5px #888888;
+        max-height: 50px;
+        overflow: hidden;
       }
       .navbar-inverse .navbar-inner {
         background-image: linear-gradient(to bottom,rgba(141, 0, 0, 0.62) 0,rgba(184, 14, 14, 0.35) 100%);
@@ -23,6 +25,7 @@
         left: 0;
         right: 0;
         */
+        clear: both;
         box-shadow: 0px -5px 5px #888888;
         margin-bottom: 0;
       }
@@ -121,8 +124,10 @@
       body {
         background: url('/images/white-linen.jpg');
       }
-      article.main {
+      .veronica {
         background-color: rgba(255, 255, 255, 0.5);
+      }
+      article.main {
         padding-top: 60px;
         padding-bottom: 60px;
       }
@@ -1043,6 +1048,9 @@
         scrollToTop: function() {
           window.scrollTo(0, 0);
         }.observes('controller.model').on('didInsertElement')
+      });
+      Veronica.ApplicationView = Em.View.extend({
+        classNames: 'veronica'.w()
       });
 
       window.onclick = function(e) {
