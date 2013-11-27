@@ -145,6 +145,7 @@ ul.comments {
 ul.comments li.comment {
   border-left: 1px solid #eeeeee;
   padding-left: 1em;
+  padding-top: 1em;
 }
 
 .comment .meta,
