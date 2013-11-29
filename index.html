@@ -866,17 +866,26 @@
             method: 'POST',
             data: {
               user:     this.get('username'),
-              passwd:   this.get('password')
+              passwd:   this.get('password'),
+              api_type: 'json'
             }
           }).then(function(response) {
-            var test = this;
-            console.log('got response', JSON.stringify(response));
-            $.ajax({
-              url: 'http://www.reddit.com/api/me.json'
-            }).then(function(me) {
-              console.log('me.json', me);
-              promise.resolve(me);
-            }, function(err) {promise.reject(err)});
+            console.log(response);
+            if (response.json.data) {
+              var modhash = response.json.data.modhash,
+                  cookie = response.json.data.cookie;
+              console.log('modhash', modhash, 'cookie', cookie);
+              $.ajax({
+                url: 'http://www.reddit.com/api/me.json',
+                headers: {
+                  "X-Modhash": modhash,
+                  "reddit_session": cookie
+                }
+              }).then(function(me) {
+                console.log('me.json', me);
+                promise.resolve(me);
+              }, function(err) {promise.reject(err)});
+            }
           }, function(error) {
             console.log('error', error);
             debugger;
