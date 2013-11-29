@@ -444,19 +444,18 @@
 
       Veronica.RedditRoute = Ember.Route.extend({
         model: function(params) {
-          var url = "http://reddit.com/",
+          var url = "http://www.reddit.com/",
               redditPath = params.reddit_path,
               parts = redditPath.split('?', 2),
               redditPathJson;
           if (parts.length > 1) {
-            redditPathJson = parts[0] + '.json?' + parts[1] + '&jsonp=?';
+            redditPathJson = parts[0] + '.json?' + parts[1];
           } else {
-            redditPathJson = redditPath + '.json?jsonp=?';
+            redditPathJson = redditPath + '.json';
           }
 
           return Ember.RSVP.resolve($.ajax({
             url: url + redditPathJson,
-            dataType: 'jsonp'
           }).then(function(response) {
             response.redditPath = redditPath;
             return response;
@@ -540,7 +539,6 @@
         needs: 'application'.w(),
         subreddits: Em.computed.alias('controllers.application.subreddits'),
 
-        redditDomain: 'http://reddit.com',
         clock: Veronica.clock,
 
         isSinglePost: Em.computed.alias('parentController.isSinglePost'),
@@ -762,8 +760,7 @@
               sidebar = Em.Object.create();
           if (subreddits.get('length') === 1) {
             $.ajax({
-              url: 'http://reddit.com/r/' + subreddits.get('firstObject') + '/about.json?jsonp=?',
-              dataType: 'jsonp'
+              url: 'http://www.reddit.com/r/' + subreddits.get('firstObject') + '/about.json',
             }).then(function(response) {
               sidebar.set('subredditPath', 'r/' + subreddits.get('firstObject'));
               sidebar.setProperties(response.data);
@@ -777,8 +774,7 @@
               user = Em.Object.create();
           if (this.get('isSingleUser')) {
             $.ajax({
-              url: 'http://reddit.com/user/' + users.get('firstObject') + '/about.json?jsonp=?',
-              dataType: 'jsonp'
+              url: 'http://www.reddit.com/user/' + users.get('firstObject') + '/about.json',
             }).then(function(response) {
               user.set('userPath', 'user/' + users.get('firstObject'));
               user.setProperties(response);
@@ -870,16 +866,17 @@
               api_type: 'json'
             }
           }).then(function(response) {
-            console.log(response);
             if (response.json.data) {
               var modhash = response.json.data.modhash,
                   cookie = response.json.data.cookie;
               console.log('modhash', modhash, 'cookie', cookie);
               $.ajax({
                 url: 'http://www.reddit.com/api/me.json',
+                xhrFields: {
+                    withCredentials: true
+                },
                 headers: {
-                  "X-Modhash": modhash,
-                  "reddit_session": cookie
+                  "X-Modhash": modhash
                 }
               }).then(function(me) {
                 console.log('me.json', me);
