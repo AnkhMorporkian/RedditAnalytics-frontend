@@ -862,23 +862,24 @@
         login: function() {
           var promise = Em.Deferred.create();
           $.ajax({
-            url: 'http://roxy.rednit.com',
+            url: 'http://www.reddit.com/api/login',
+            method: 'POST',
             data: {
-              _request: {
-                url:      'https://www.reddit.com/api/login',
-                method:   'POST',
-                headers: {
-                  Authorization: 'OAuth 0123456789abcdef0123456789abcdef'
-                },
-              },
               user:     this.get('username'),
               passwd:   this.get('password')
-            },
-            dataType: 'jsonp'
+            }
           }).then(function(response) {
+            var test = this;
+            console.log('got response', JSON.stringify(response));
+            $.ajax({
+              url: 'http://www.reddit.com/api/me.json'
+            }).then(function(me) {
+              console.log('me.json', me);
+              promise.resolve(me);
+            }, function(err) {promise.reject(err)});
+          }, function(error) {
+            console.log('error', error);
             debugger;
-            console.log('got response', response);
-            promise.resolve(response);
           });
           return promise;
         }
