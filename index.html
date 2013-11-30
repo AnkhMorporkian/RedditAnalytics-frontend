@@ -15,7 +15,7 @@
             {{#linkTo "about" class="navbar-brand"}}rednit{{/linkTo}}
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
-                {{#linkTo "reddit" "" tagName="li"}}
+                {{#linkTo "reddit" " " tagName="li"}}
                   <a href='/' class='dontintercept'>/</a>
                 {{/linkTo}}
                 {{#linkTo "reddit" "r/all" tagName="li"}}
@@ -456,16 +456,17 @@
               redditPath = params.reddit_path || '',
               parts,
               redditPathJson;
-          if (redditPath) {
-            parts = redditPath.split('?', 2);
-            if (parts.length > 1) {
-              redditPathJson = parts[0] + '.json?' + parts[1];
-            } else {
-              redditPathJson = redditPath + '.json';
-            }
-          } else {
-            redditPathJson = '.json';
+          if (redditPath === '/') {
+            redditPath = '';
           }
+          redditPath = redditPath.trim();
+          parts = redditPath.split('?', 2);
+          if (parts.length > 1) {
+            redditPathJson = parts[0] + '.json?' + parts[1];
+          } else {
+            redditPathJson = redditPath + '.json';
+          }
+          console.log('redditPathJson', redditPathJson);
 
           return Ember.RSVP.resolve(Veronica.redditAjax({
             url: url + redditPathJson,
