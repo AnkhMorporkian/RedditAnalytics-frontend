@@ -28,13 +28,13 @@
                   <a href='/comments/search' class='dontintercept'>/comments/search</a>
                 {{/linkTo}}
               </ul>
-              <ul class='nav navbar-nav navbar-right'>
-                {{#each headerSubreddits}}
-                  {{#linkTo "reddit" this tagName="li"}}
-                    <a href='/{{unbound this}}' class='dontintercept'>{{unbound this}}</a>
-                  {{/linkTo}}
-                {{/each}}
+              {{#if user}}
+              <ul class='nav navbar-nav navbar-right user'>
+                <li>
+                  <a href='/user/{{unbound user.name}}'><span class='name'>{{unbound user.name}}</span> (<span class='karma'>{{user.link_karma}}</span>)</a>
+                </li>
               </ul>
+              {{/if}}
             </div>
         </div>
       </div>
@@ -46,6 +46,13 @@
               <li>
                 <a href='http://reddit.com' class='dontintercept'>Powered by reddit.com</a>
               </li>
+            </ul>
+            <ul class='nav navbar-nav navbar-left'>
+              {{#each headerSubreddits}}
+                {{#linkTo "reddit" this tagName="li"}}
+                  <a href='/{{unbound this}}' class='dontintercept'>{{unbound this}}</a>
+                {{/linkTo}}
+              {{/each}}
             </ul>
             <ul class='nav navbar-nav navbar-right'>
               {{#linkTo "about" class='veronica-version' tagName="li"}}
@@ -359,8 +366,8 @@
         return $('<div/>').html(value).text();
       };
 
-      Veronica.user = null;
-      Veronica.plugin_present = false;
+      Veronica.set('user', null);
+      Veronica.set('plugin_present', false);
 
       Veronica.roxyPath = '/roxy';
 
@@ -394,7 +401,7 @@
 
       Veronica.redditAjax = function(params) {
         params = params || {};
-        if (Veronica.plugin_present) {
+        if (Veronica.get('plugin_present')) {
           params.xhrFields = {withCredentials: true};
         }
         return $.ajax(params);
@@ -519,8 +526,8 @@
             xhrFields: {withCredentials: true}
           }).then(function(results) {
             console.log('got me.json');
-            Veronica.user = results.data;
-            Veronica.plugin_present = true;
+            Veronica.set('user', results.data);
+            Veronica.set('plugin_present', true);
             promise.resolve();
           }, function(error) {
             console.log('error getting me.json');
@@ -952,6 +959,9 @@
       Veronica.ApplicationController = Em.Controller.extend({
         clock: Veronica.clock,
         proxy: '/roxy/',
+        user: function() {
+          return Veronica.get('user');
+        }.property('Veronica.user'),
         messages: [
           'Frying bacon',
           'Narwal spotting',
