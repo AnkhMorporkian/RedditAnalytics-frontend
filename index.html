@@ -292,6 +292,11 @@
             {{/with}}
           {{/if}}
         {{/if}}
+        {{#if wikipage}}
+        <div class='well wikipage'>
+          {{{wikipageHtml}}}
+        </div>
+        {{/if}}
         <div class='submission-list'>
         {{#each items itemController="redditItem"}}
           {{#if body}}
@@ -336,6 +341,9 @@
 
     <script type="text/x-handlebars" data-template-name="loading">
       <h1 class='loading'>{{{loadingMessage}}}</h1>
+    </script>
+    <script type="text/x-handlebars" data-template-name="error">
+      <h1 class='loading'>YOU BROKE IT</h1>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -460,6 +468,7 @@
             redditPath = '';
           }
           redditPath = redditPath.trim();
+          redditPath = redditPath.split('#', 2)[0];
           parts = redditPath.split('?', 2);
           if (parts.length > 1) {
             redditPathJson = parts[0] + '.json?' + parts[1];
@@ -731,6 +740,19 @@
       });
 
       Veronica.RedditController = Ember.Controller.extend({
+        wikipage: function() {
+          if (this.get('model.kind') === 'wikipage') {
+            return this.get('model.data');
+          }
+        }.property('model.kind', 'model.data'),
+
+        wikipageHtml: function() {
+          var html = this.get('wikipage.content_html');
+          if (html) {
+            return Veronica.htmlDecode(html);
+          }
+        }.property('wikipage.content_html'),
+
         listings: function() {
           var model = this.get('model');
           if (Em.isArray(model)) {
@@ -889,8 +911,8 @@
                 xhrFields: {
                     withCredentials: true
                 },
-                headers: {
-                  "X-Modhash": modhash
+                data: {
+                  uh: modhash
                 }
               }).then(function(me) {
                 console.log('me.json', me);
