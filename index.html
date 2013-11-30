@@ -277,6 +277,7 @@
             <li><a href='/{{unbound sidebar.subredditPath}}/top'>Top</a></li>
             <li><a href='/{{unbound sidebar.subredditPath}}/comments'>Comments</a></li>
             <li><a href='/{{unbound sidebar.subredditPath}}/gilded'>Gilded</a></li>
+            <li>{{#linkTo 'redditCarousel' sidebar.subredditPath}}Images{{/linkTo}}</li>
           </ul>
           <section class='sidebar well pull-right'>
             <h1 class='subreddit-title'>
@@ -352,6 +353,55 @@
       </section>
     </script>
 
+    <script type="text/x-handlebars" data-template-name="redditCarousel">
+    {{#if images.length}}
+      <div id='reddit-carousel' class='carousel slide' data-ride='carousel'>
+        {{view Veronica.CarouselIndicatorsView content=images}}
+        {{view Veronica.CarouselImagesView content=images}}
+        <a class='left carousel-control dontintercept' href='#reddit-carousel' data-slide='prev'><span class="glyphicon glyphicon-chevron-left"></span></a>
+        <a class='right carousel-control dontintercept' href='#reddit-carousel' data-slide='next'><span class="glyphicon glyphicon-chevron-right"></span></a>
+      </div>
+    {{else}}
+      <div class='well'>
+        <h2>{{#linkTo 'reddit' model.redditPath}}No images to show for /{{model.redditPath}}{{/linkTo}}</h2>
+      </div>
+    {{/if}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="redditCarouselItem">
+    {{#with view.content}}
+      <img src="{{unbound imageUrl}}" alt="image"/>
+      <div class='carousel-caption'>
+        <div {{bind-attr class='stickied isUpvoted isDownvoted :submission :media'}}>
+          <div class='pull-left votes'>
+            <button class='ups' {{action upvote this}}><span class="glyphicon glyphicon-chevron-up"></span></button>
+            <div class='score'>{{score}}</div>
+            <button class='downs' {{action downvote this}}><span class="glyphicon glyphicon-chevron-down"></span></button>
+          </div>
+          <div class='media-body'>
+            <span class='media-heading'>
+              <a href="{{unbound linkUrl}}" target="reddit">{{{unbound title}}}</a>
+            </span>
+            {{#linkTo 'reddit' domainPath class='domain'}}({{unbound domain}}){{/linkTo}}
+            {{#if link_flair_text}}
+              <span class='label label-primary link-flair'>{{unbound link_flair_text}}</span>
+            {{/if}}
+          </div>
+          submitted
+          <span class='date'>{{created}}</span>
+          by
+          {{#linkTo 'reddit' authorPath class="author"}}
+            {{unbound author}}
+            {{#if author_flair_text}}
+              <span class='label label-info link-flair'>{{unbound author_flair_text}}</span>
+            {{/if}}
+          {{/linkTo}}
+          to {{#linkTo 'reddit' subredditPath class="subreddit"}}{{unbound subreddit}}{{/linkTo}}
+        </div>
+      </div>
+    {{/with}}
+    </script>
+
     <script type="text/x-handlebars" data-template-name="login">
       <fieldset>
         <label>
@@ -372,8 +422,10 @@
       <h1 class='loading'>YOU BROKE IT</h1>
     </script>
 
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.1.2/handlebars.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ember.js/1.2.0-beta.4/ember.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.7.2/URI.min.js"></script>
@@ -442,6 +494,7 @@
           });
         });
         this.resource('about');
+        this.resource('redditCarousel', {path: '/carousel/*reddit_path'});
         this.resource('reddit', {path: '/*reddit_path'});
         this.resource('login');
       });
@@ -525,6 +578,9 @@
             reddit_path: model
           };
         }
+      });
+
+      Veronica.RedditCarouselRoute = Veronica.RedditRoute.extend({
       });
 
       Veronica.SubmissionsStreamCustomRoute = Ember.Route.extend({
@@ -687,6 +743,9 @@
         subreddits: Em.computed.alias('controllers.application.subreddits'),
         clock: Veronica.clock,
 
+        itemIndex: 0,
+        isFirst: false,
+
         isSinglePost: Em.computed.alias('parentController.isSinglePost'),
 
         isUpvoted: function() {
@@ -698,9 +757,10 @@
         }.property('likes'),
 
         subredditDidChange: function() {
-          var subreddit = this.get('subreddit');
-          if (subreddit) {
-            this.get('subreddits').addObject('r/' + subreddit);
+          var subreddit = this.get('subreddit'),
+              subreddits = this.get('subreddits');
+          if (subreddit && subreddits) {
+            subreddits.addObject('r/' + subreddit);
           }
         }.observes('subreddit').on('init'),
 
@@ -738,9 +798,11 @@
           if (['jpeg', 'jpg', 'png', 'gif'].contains(ext)) {
             return url;
           }
+          /*
           if (['imgur.com', 'i.imgur.com'].contains(this.get('domain'))) {
             return url + '.jpg';
           }
+          */
         }.property('url'),
 
         youtubeId: function() {
@@ -1026,6 +1088,24 @@
         }.property('hasMultiplePosts', 'firstPostId')
       });
 
+      Veronica.RedditCarouselController =Veronica.RedditController.extend({
+        images: function() {
+          return this.get('items').map(function(item) {
+            return Em.ObjectProxy.createWithMixins(Veronica.RedditItemMixin, {
+              model: item,
+              content: Em.computed.alias('model')
+            });
+          }).filter(function(item) {
+            console.log(item.get('imageUrl'));
+            return (!!item.get('imageUrl'));
+          }).map(function(image, index) {
+            image.set("itemIndex", index);
+            image.set("isFirst", index === 0);
+            return image;
+          });
+        }.property('items'),
+      });
+
       Veronica.LoadingController = Em.Controller.extend({
         needs: 'application'.w(),
         loadingMessage: Em.computed.alias('controllers.application.loadingMessage')
@@ -1138,6 +1218,26 @@
       });
       Veronica.ApplicationView = Em.View.extend({
         classNames: 'veronica'.w()
+      });
+
+      Veronica.CarouselIndicatorsView = Em.CollectionView.extend({
+        tagName: 'ol',
+        classNames: 'carousel-indicators'.w(),
+        itemViewClass: Em.View.extend({
+          classNameBindings: "content.isFirst:active".w(),
+          dataSlideToBinding: 'content.itemIndex',
+          attributeBindings: ['dataSlideTo:data-slide-to']
+        })
+      });
+
+      Veronica.CarouselImagesView = Em.CollectionView.extend({
+        classNames: 'carousel-inner'.w(),
+        attributeBindings: 'style'.w(),
+
+        itemViewClass: Em.View.extend({
+          classNameBindings: ":item content.isFirst:active".w(),
+          templateName: 'redditCarouselItem'
+        })
       });
 
       window.onclick = function(e) {
