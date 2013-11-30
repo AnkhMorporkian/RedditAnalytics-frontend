@@ -291,6 +291,15 @@
               <span class='number'>{{sidebar.accounts_active}}</span>
               <span class='word'>users here now</span>
             </p>
+            {{#if controllers.application.user}}
+            <div class='actions'>
+              {{#if sidebar.user_is_subscriber}}
+                <button class='unsubscribe btn btn-danger' {{action unsubscribe sidebar}}>Unsubscribe</button>
+              {{else}}
+                <button class='subscribe btn btn-success' {{action subscribe sidebar}}>Subscribe</button>
+              {{/if}}
+            </div>
+            {{/if}}
             {{{sidebarHtml}}}
           </section>
         {{else}}
@@ -411,7 +420,6 @@
         if (Veronica.get('plugin_present')) {
           params.xhrFields = {withCredentials: true};
         }
-        console.log('user', user);
         if (user && user.modhash) {
           params.data.uh = user.modhash
         }
@@ -499,7 +507,6 @@
           } else {
             redditPathJson = redditPath + '.json';
           }
-          console.log('redditPathJson', redditPathJson);
 
           return Ember.RSVP.resolve(Veronica.redditAjax({
             url: url + redditPathJson,
@@ -536,12 +543,10 @@
             url: 'http://www.reddit.com/api/me.json',
             xhrFields: {withCredentials: true}
           }).then(function(results) {
-            console.log('got me.json');
             Veronica.set('user', results.data);
             Veronica.set('plugin_present', true);
             promise.resolve();
           }, function(error) {
-            console.log('error getting me.json');
             promise.resolve();
           });
           return promise;
@@ -549,6 +554,34 @@
         actions: {
           login: function() {
             this.controllerFor('login').login();
+          },
+          subscribe: function(subreddit) {
+            var promise = Veronica.redditAjax({
+              method: 'POST',
+              url: 'http://www.reddit.com/api/subscribe',
+              data: {
+                action: 'sub',
+                sr: Em.get(subreddit, 'name')
+              }
+            });
+            promise.then(function() {
+              Em.set(subreddit, 'user_is_subscriber', true);
+            });
+            return promise;
+          },
+          unsubscribe: function(subreddit) {
+            var promise = Veronica.redditAjax({
+              method: 'POST',
+              url: 'http://www.reddit.com/api/subscribe',
+              data: {
+                action: 'unsub',
+                sr: Em.get(subreddit, 'name')
+              }
+            });
+            promise.then(function() {
+              Em.set(subreddit, 'user_is_subscriber', false);
+            });
+            return promise;
           }
         }
       });
@@ -793,6 +826,8 @@
       });
 
       Veronica.RedditController = Ember.Controller.extend({
+        needs: 'application'.w(),
+
         wikipage: function() {
           if (this.get('model.kind') === 'wikipage') {
             return this.get('model.data');
@@ -848,7 +883,7 @@
           var subreddits = this.get('subreddits'),
               sidebar = Em.Object.create();
           if (subreddits.get('length') === 1) {
-            $.ajax({
+            Veronica.redditAjax({
               url: 'http://www.reddit.com/r/' + subreddits.get('firstObject') + '/about.json',
             }).then(function(response) {
               sidebar.set('subredditPath', 'r/' + subreddits.get('firstObject'));
@@ -958,7 +993,6 @@
             if (response.json.data) {
               var modhash = response.json.data.modhash,
                   cookie = response.json.data.cookie;
-              console.log('modhash', modhash, 'cookie', cookie);
               Veronica.redditAjax({
                 url: 'http://www.reddit.com/api/me.json',
                 xhrFields: {
@@ -968,13 +1002,9 @@
                   uh: modhash
                 }
               }).then(function(me) {
-                console.log('me.json', me);
                 promise.resolve(me);
               }, function(err) {promise.reject(err)});
             }
-          }, function(error) {
-            console.log('error', error);
-            debugger;
           });
           return promise;
         }
