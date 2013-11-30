@@ -120,11 +120,11 @@
       </div>
     </script>
     <script type="text/x-handlebars" data-template-name="submissionItem">
-      <div {{bind-attr class='stickied :submission :media'}}>
+      <div {{bind-attr class='stickied isUpvoted isDownvoted :submission :media'}}>
           <div class='pull-left votes'>
-            <div class='ups'>{{unbound ups}}</div>
-            <div class='score'>{{unbound score}}</div>
-            <div class='downs'>{{unbound downs}}</div>
+            <button class='ups' {{action upvote this}}><span class="glyphicon glyphicon-chevron-up"></span></button>
+            <div class='score'>{{score}}</div>
+            <button class='downs' {{action downvote this}}><span class="glyphicon glyphicon-chevron-down"></span></button>
           </div>
         {{#if thumbnail}}
           <div class='pull-left'>
@@ -205,6 +205,10 @@
           in <a class="subreddit" href="/r/{{unbound subreddit}}">{{unbound subreddit}}</a>
         {{/if}}
         {{/unless}}
+        <div {{bind-attr class='isUpvoted isDownvoted :votes'}}>
+          <button class='ups' {{action upvote this}}><span class="glyphicon glyphicon-chevron-up"></span></button>
+          <button class='downs' {{action downvote this}}><span class="glyphicon glyphicon-chevron-down"></span></button>
+        </div>
         <div class='meta'>
           by
           <a href='/user/{{unbound author}}' class='author'>
@@ -223,7 +227,8 @@
             <span class='gilded glyphicon glyphicon-star-empty label label-warning'>{{unbound gilded}}</span>
           {{/if}}
         </div>
-        <section class='body'>{{{unbound body}}}</section><div class='buttons'>
+        <section class='body'>{{{unbound body}}}</section>
+        <div class='buttons'>
           <a href='{{unbound permalink}}' class='permalink'>permalink</a>
           {{#linkTo 'comments.tree' id class='comment-tree-search'}}search{{/linkTo}}
         </div>
@@ -582,6 +587,52 @@
               Em.set(subreddit, 'user_is_subscriber', false);
             });
             return promise;
+          },
+          upvote: function(item) {
+            if (!Veronica.get('user') || Em.get(item, 'likes')) {
+              return;
+            }
+            var promise = Veronica.redditAjax({
+              method: 'POST',
+              url: 'http://www.reddit.com/api/vote',
+              data: {
+                dir: 1,
+                id: Em.get(item, 'name')
+              }
+            });
+            promise.then(function() {
+              var votes = Em.get(item, 'ups'),
+                  score = Em.get(item, 'score');
+              Em.set(item, 'ups', votes + 1);
+              Em.set(item, 'likes', true);
+              if (score || score === 0) {
+                Em.set(item, 'score', score + 1);
+              }
+            });
+            return promise;
+          },
+          downvote: function(item) {
+            if (!Veronica.get('user') || Em.get(item, 'likes') === false) {
+              return;
+            }
+            var promise = Veronica.redditAjax({
+              method: 'POST',
+              url: 'http://www.reddit.com/api/vote',
+              data: {
+                dir: -1,
+                id: Em.get(item, 'name')
+              }
+            });
+            promise.then(function() {
+              var votes = Em.get(item, 'downs'),
+                  score = Em.get(item, 'score');
+              Em.set(item, 'downs', votes + 1);
+              Em.set(item, 'likes', false);
+              if (score || score === 0) {
+                Em.set(item, 'score', score - 1);
+              }
+            });
+            return promise;
           }
         }
       });
@@ -637,6 +688,14 @@
         clock: Veronica.clock,
 
         isSinglePost: Em.computed.alias('parentController.isSinglePost'),
+
+        isUpvoted: function() {
+          return this.get('likes') === true;
+        }.property('likes'),
+
+        isDownvoted: function() {
+          return this.get('likes') === false;
+        }.property('likes'),
 
         subredditDidChange: function() {
           var subreddit = this.get('subreddit');

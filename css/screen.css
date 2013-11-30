@@ -89,25 +89,46 @@ section.sidebar {
   font-size: 100%;
 }
 
-.ups, .downs, .score {
-  text-align: right;
-  width: 4em;
+.ups, .downs {
+  display: block;
+  opacity: 0.25;
+  font-size: 150%;
 }
+
+.ups, .downs, .score {
+  border-width: 0 0 0 0;
+  cursor: pointer;
+  background: none;
+  text-align: center;
+}
+
+.score {
+  height: 100%;
+}
+
 .ups {
   color: green;
 }
 .downs {
   color: red;
 }
+
+
+.ups:hover,
+.downs:hover,
+.is-downvoted .downs,
+.is-upvoted .ups {
+  opacity: 1;
+}
 .submission .score {
   font-weight: bold;
 }
-.ups:before {
-  content: '+';
+
+.is-downvoted .score,
+.is-upvoted .score {
+  font-weight: normal;
 }
-.downs:before {
-  content: '-';
-}
+
 .submission-list > .submission {
   padding: 1em;
   margin: 0 0 0 0;
@@ -143,9 +164,16 @@ ul.comments {
 }
 
 ul.comments li.comment {
+  position: relative;
   border-left: 1px solid #eeeeee;
-  padding-left: 1em;
+  padding-left: 2em;
   padding-top: 1em;
+}
+ul.comments li.comment .votes {
+  position: absolute;
+  font-size: 80%;
+  left: 0;
+  top: 2em;
 }
 
 .comment .meta,
