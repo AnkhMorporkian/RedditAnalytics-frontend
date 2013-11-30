@@ -201,3 +201,6 @@ a {
   max-height: 800px;
 }
 
+.has-mail a {
+  color: cyan !important;
+}
