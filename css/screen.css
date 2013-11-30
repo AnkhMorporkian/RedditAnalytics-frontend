@@ -92,7 +92,7 @@ section.sidebar {
 .ups, .downs {
   display: block;
   opacity: 0.25;
-  font-size: 150%;
+  //font-size: 150%;
 }
 
 .ups, .downs, .score {
@@ -135,7 +135,7 @@ section.sidebar {
 }
 .well,
 .nav-tabs,
-.submission-list > .submission:nth-child(even) {
+.submission-list > .submission:nth-child(odd) {
   background-image: none;
   background-color: #EEEEEE;
   background-color: rgba(200, 200, 200, 0.3);
@@ -160,20 +160,19 @@ article.container,
 
 ul.comments {
   list-style-type: none;
-  padding-left: 1em;
+  padding-left: 0;
 }
 
 ul.comments li.comment {
   position: relative;
   border-left: 1px solid #eeeeee;
   padding-left: 2em;
-  padding-top: 1em;
+  padding-top: 0.5em;
 }
 ul.comments li.comment .votes {
   position: absolute;
-  font-size: 80%;
-  left: 0;
-  top: 2em;
+  left: 0.1em;
+  top: 0.5em;
 }
 
 .comment .meta,
