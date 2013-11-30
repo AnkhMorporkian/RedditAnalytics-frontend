@@ -956,7 +956,7 @@
           var users = this.get('users'),
               user = Em.Object.create();
           if (this.get('isSingleUser')) {
-            $.ajax({
+            Veronica.redditAjax({
               url: 'http://www.reddit.com/user/' + users.get('firstObject') + '/about.json',
             }).then(function(response) {
               user.set('userPath', 'user/' + users.get('firstObject'));
