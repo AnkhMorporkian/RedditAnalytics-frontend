@@ -405,9 +405,15 @@
       Veronica.clock = Veronica.Clock.create();
 
       Veronica.redditAjax = function(params) {
+        var user = Veronica.get('user');
         params = params || {};
+        params.data = params.data || {};
         if (Veronica.get('plugin_present')) {
           params.xhrFields = {withCredentials: true};
+        }
+        console.log('user', user);
+        if (user && user.modhash) {
+          params.data.uh = user.modhash
         }
         return $.ajax(params);
       }
@@ -595,7 +601,6 @@
       Veronica.RedditItemMixin = Ember.Mixin.create({
         needs: 'application'.w(),
         subreddits: Em.computed.alias('controllers.application.subreddits'),
-
         clock: Veronica.clock,
 
         isSinglePost: Em.computed.alias('parentController.isSinglePost'),
@@ -759,7 +764,19 @@
             created = now;
           }
           return created.fromNow();
-        }.property('model.created_utc', 'clock.minute')
+        }.property('model.created_utc', 'clock.minute'),
+
+        markRead: function() {
+          if (this.get('new')) {
+            Veronica.redditAjax({
+              url:    'http://www.reddit.com/api/read_message',
+              method: 'POST',
+              data:   {
+                id:     this.get('name')
+              }
+            });
+          }
+        }.observes('new').on('init')
       });
 
       Veronica.RedditItemController = Ember.ObjectController.extend(Veronica.RedditItemMixin);
