@@ -359,6 +359,9 @@
         return $('<div/>').html(value).text();
       };
 
+      Veronica.user = null;
+      Veronica.plugin_present = false;
+
       Veronica.roxyPath = '/roxy';
 
       Veronica.shuffle = function(v){
@@ -391,6 +394,9 @@
 
       Veronica.redditAjax = function(params) {
         params = params || {};
+        if (Veronica.plugin_present) {
+          params.xhrFields = {withCredentials: true};
+        }
         return $.ajax(params);
       }
 
@@ -506,6 +512,22 @@
       });
 
       Veronica.ApplicationRoute = Em.Route.extend({
+        model: function() {
+          var promise = Em.Deferred.create();
+          $.ajax({
+            url: 'http://www.reddit.com/api/me.json',
+            xhrFields: {withCredentials: true}
+          }).then(function(results) {
+            console.log('got me.json');
+            Veronica.user = results.data;
+            Veronica.plugin_present = true;
+            promise.resolve();
+          }, function(error) {
+            console.log('error getting me.json');
+            promise.resolve();
+          });
+          return promise;
+        },
         actions: {
           login: function() {
             this.controllerFor('login').login();
