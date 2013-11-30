@@ -15,6 +15,9 @@
             {{#linkTo "about" class="navbar-brand"}}rednit{{/linkTo}}
             <div class='navbar-collapse collapse'>
               <ul class='nav navbar-nav'>
+                {{#linkTo "reddit" "" tagName="li"}}
+                  <a href='/' class='dontintercept'>/</a>
+                {{/linkTo}}
                 {{#linkTo "reddit" "r/all" tagName="li"}}
                   <a href='/r/all' class='dontintercept'>/r/all</a>
                 {{/linkTo}}
@@ -378,6 +381,11 @@
       });
       Veronica.clock = Veronica.Clock.create();
 
+      Veronica.redditAjax = function(params) {
+        params = params || {};
+        return $.ajax(params);
+      }
+
       Veronica.Router.map(function() {
         this.resource('submissions.stream', {path: '/new'}, function() {
           this.route('custom', {path: ':args'});
@@ -399,7 +407,7 @@
 
       Veronica.IndexRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('reddit', 'r/all');
+          this.transitionTo('reddit', '');
         }
       });
 
@@ -445,16 +453,21 @@
       Veronica.RedditRoute = Ember.Route.extend({
         model: function(params) {
           var url = "http://www.reddit.com/",
-              redditPath = params.reddit_path,
-              parts = redditPath.split('?', 2),
+              redditPath = params.reddit_path || '',
+              parts,
               redditPathJson;
-          if (parts.length > 1) {
-            redditPathJson = parts[0] + '.json?' + parts[1];
+          if (redditPath) {
+            parts = redditPath.split('?', 2);
+            if (parts.length > 1) {
+              redditPathJson = parts[0] + '.json?' + parts[1];
+            } else {
+              redditPathJson = redditPath + '.json';
+            }
           } else {
-            redditPathJson = redditPath + '.json';
+            redditPathJson = '.json';
           }
 
-          return Ember.RSVP.resolve($.ajax({
+          return Ember.RSVP.resolve(Veronica.redditAjax({
             url: url + redditPathJson,
           }).then(function(response) {
             response.redditPath = redditPath;
@@ -815,7 +828,7 @@
         nextPath: function() {
           var hasMultiplePosts = this.get('hasMultiplePosts'),
               lastPostId = this.get('lastPostId'),
-              path = this.get('model.redditPath'),
+              path = this.get('model.redditPath') || '',
               parts = path.split('?', 2);
           if (hasMultiplePosts && lastPostId) {
             if (parts.length > 1) {
@@ -830,7 +843,7 @@
         prevPath: function() {
           var hasMultiplePosts = this.get('hasMultiplePosts'),
               firstPostId = this.get('firstPostId'),
-              path = this.get('model.redditPath'),
+              path = this.get('model.redditPath') || '',
               parts = path.split('?', 2);
           if (hasMultiplePosts && firstPostId) {
             if (parts.length > 1) {
@@ -857,7 +870,7 @@
 
         login: function() {
           var promise = Em.Deferred.create();
-          $.ajax({
+          Veronica.redditAjax({
             url: 'http://www.reddit.com/api/login',
             method: 'POST',
             data: {
@@ -870,7 +883,7 @@
               var modhash = response.json.data.modhash,
                   cookie = response.json.data.cookie;
               console.log('modhash', modhash, 'cookie', cookie);
-              $.ajax({
+              Veronica.redditAjax({
                 url: 'http://www.reddit.com/api/me.json',
                 xhrFields: {
                     withCredentials: true
